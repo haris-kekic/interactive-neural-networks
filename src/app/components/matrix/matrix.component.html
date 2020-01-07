@@ -1,0 +1,12 @@
+<div *ngIf="matrix != null && matrix.length > 0">
+  <table class="table table-sm table-bordered">
+    <tr *ngIf="hasColHeader">
+      <th></th>
+      <th *ngFor="let value of matrix[0]; index as colIndex" class="text-center">L{{ layer }}N{{ colIndex }}</th>
+    </tr>
+    <tr *ngFor="let row of matrix; index as rowIndex">
+      <th *ngIf="hasRowHeader" class="text-center">L{{ layer + 1 }}N{{ rowIndex }}</th>
+      <td class="text-center" *ngFor="let value of row">{{ value | number: '1.3-3' }}</td>
+    </tr>
+  </table>
+</div>

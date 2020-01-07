@@ -1,0 +1,148 @@
+import { Injectable } from '@angular/core';
+import { Sample, ProcessingMode } from './neural-network.service';
+import { Observable, from, EMPTY, ArgumentOutOfRangeError, EmptyError, BehaviorSubject } from 'rxjs';
+import { last, map, concatMap, take, elementAt, takeWhile, tap, count, catchError, defaultIfEmpty, first, filter } from 'rxjs/operators';
+import { UUID } from 'angular2-uuid';
+import { NeuralNetworkPhase } from '../models/artifacts';
+
+
+export abstract class SampleStorageService {
+  protected persistentSampleStore: Sample[] = [];
+  protected workingSampleStore: Sample[] = [];
+  protected processedSampleIdStore: string[] = [];
+  protected pNextUnprocessedSamples = new BehaviorSubject<Sample[]>([]);
+  protected pSamples = new BehaviorSubject<Sample[]>([]);
+  protected pSampleCount = new BehaviorSubject<number>(0);
+  protected pHasSamples = new BehaviorSubject<boolean>(false);
+  public token: NeuralNetworkPhase;
+  public nextSamplesCount = 3;
+
+  public get samples() {
+    return this.pSamples.asObservable();
+  }
+
+  public get sampleCount() {
+    return this.pSampleCount.asObservable();
+  }
+
+  public get hasSamples() {
+    return this.pHasSamples.asObservable();
+  }
+
+  public get nextUnprocessedSamples() {
+    return this.pNextUnprocessedSamples.asObservable();
+  }
+
+  constructor() { }
+
+  public push() {
+    // push the data from working store to the persistance with deep copy
+    this.persistentSampleStore = [...this.workingSampleStore.map((sample) => {
+                                            return { id: sample.id,
+                                                     input: [...sample.input],
+                                                     output: (sample.output != null ? [...sample.output] : null) };
+                                          })
+                                 ];
+    this.workingSampleStore.splice(0, this.workingSampleStore.length);
+    this.processedSampleIdStore.splice(0, this.processedSampleIdStore.length);
+  }
+
+  public pull() {
+    // pull the data from persistance store to the working store with deep copy
+    this.workingSampleStore = [...this.persistentSampleStore.map((sample) => {
+                                            return { id: sample.id,
+                                                    input: [...sample.input],
+                                                    output: (sample.output != null ? [...sample.output] : null) };
+                                          })
+                              ];
+    this.pNextUnprocessedSamples.next(this.workingSampleStore
+                                          .filter(sample => !this.processedSampleIdStore.some((sampleId) => sample.id === sampleId))
+                                          .slice(0, 3));
+    this.notifyObservers();
+  }
+
+  public addSample(sample: Sample) {
+    sample.id = UUID.UUID();
+    this.workingSampleStore.unshift(sample); // add at first position
+    this.notifyObservers();
+  }
+
+  public clear() {
+    this.workingSampleStore.splice(0, this.workingSampleStore.length);
+    this.notifyObservers();
+  }
+
+  public resetProcessing() {
+    this.processedSampleIdStore.splice(0, this.processedSampleIdStore.length);
+  }
+
+  public aquireNextSample(): Observable<Sample> {
+    const observable = from(this.workingSampleStore)
+    .pipe(first(sample => !this.processedSampleIdStore.some((sampleId) => sample.id === sampleId)))
+    .pipe(catchError((error) => {
+      if (error instanceof EmptyError) {
+        return EMPTY;
+      }
+      throw Error(error);
+    }));
+
+    return observable;
+  }
+
+
+  public sampleProcessed(id: string) {
+    const samples = this.workingSampleStore.filter((ws) => ws.id === id);
+    if (samples.length === 0) {
+      throw Error(`Sample '${id}' not found!`);
+    }
+
+    this.processedSampleIdStore.push(id);
+
+    this.pNextUnprocessedSamples.next(this.getUnprocessedSamples(3));
+  }
+
+  private getUnprocessedSamples(takeCount: number) {
+    return this.workingSampleStore
+    .filter(sample => !this.processedSampleIdStore.some((sampleId) => sample.id === sampleId))
+    .slice(0, takeCount);
+  }
+
+  private notifyObservers() {
+    this.pSamples.next(this.workingSampleStore);
+    this.pSampleCount.next(this.workingSampleStore.length);
+    this.pHasSamples.next(this.workingSampleStore.length > 0);
+  }
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class TrainingSampleStorageService extends SampleStorageService {
+  token = NeuralNetworkPhase.TRAINING;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ExecutionSampleStorageService extends SampleStorageService {
+  token = NeuralNetworkPhase.EXECUTION;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class StorageSelectorService {
+  protected storageServices: SampleStorageService[] = [];
+  constructor(trainingStorageService: TrainingSampleStorageService,
+              executionStorageService: ExecutionSampleStorageService) {
+                this.storageServices.push(trainingStorageService);
+                this.storageServices.push(executionStorageService);
+              }
+  getService(phase: NeuralNetworkPhase) {
+    return this.storageServices.find((service) => service.token === phase);
+  }
+}
+
+
+
+

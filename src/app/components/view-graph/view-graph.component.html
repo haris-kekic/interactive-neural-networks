@@ -1,0 +1,145 @@
+
+<!--Graph-->
+<div>
+  <svg *ngIf="neuralGraph != null" class="graph-view" nnZoom>
+    <defs>
+      <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+        <path d="M0,0 L0,6 L9,3 z" fill="#5CF0FD" />
+      </marker>
+    </defs>
+
+    <g *ngFor="let edge of neuralGraph.edges; index as edgeIndex">
+      <line attr.x1="{{edge.x1}}" attr.y1="{{edge.y1}}" attr.x2="{{edge.x2}}" attr.y2="{{edge.y2}}" stroke-width="1" stroke="#5CF0FD" />
+      <!--Not using this part of code anymore as it was was completely messed up with the latest Chrom version -->
+      <!--<path id="{{edge.id}}" attr.d="{{edge.coordinates}}" stroke-width="1" stroke="#5CF0FD" marker-mid="url(#arrow)" />
+      <text
+        [@backPropagationHighlightValueChange]="edge.targetLayer === backPropagationActiveLayer ? animationStrings.STATE_VALUECHANGE : ''"
+        dy="-9" fill="#fffc59">
+        <textPath attr.href="{{getCurrentUrl()}}{{edge.refId}}" startOffset="52%">
+          <tspan font-weight="bold">{{ edge.value | number: '1.3-3'}}</tspan>
+        </textPath>
+      </text> -->
+      -->
+      <text attr.x={{edge.valuePosX}} attr.y={{edge.valuePosY}} dx="-50" dy="-20" text-anchor="middle" dominant-baseline="central" attr.transform="rotate({{edge.valueRotation}}, {{edge.valuePosX}}, {{edge.valuePosY}})"
+        [@backPropagationHighlightValueChange]="edge.targetLayer === backPropagationActiveLayer ? animationStrings.STATE_VALUECHANGE : ''"
+        font-weight="bold" fill="#fffc59">{{ edge.value | number: '1.3-3'}}
+      </text>
+
+      <circle
+        [@forwardPropagationSignalSend]="{ value: forwardPropagationSourceLayer === edge.sourceLayer ? animationStrings.STATE_FORWARD_SIGNAL : animationStrings.STATE_FORWARD_ORIGIN, params: { originX: edge.x1, originY: edge.y1, deltaX: edge.deltaX, deltaY: edge.deltaY }}"
+        (@forwardPropagationSignalSend.done)="onForwardPropagationSignalSendFinished($event, edge.sourceLayer)"
+        id="signal_{{edgeIndex}}" [attr.data-layer]="edge.sourceLayer" r="10" attr.cx="{{edge.x1}}"
+        attr.cy="{{edge.y1}}" fill="#5CF0FD" class="nn-signal">
+      </circle>
+
+      <circle
+        [@backPropagationActivateLayer]="{ value: backPropagationSourceLayer === edge.targetLayer ? animationStrings.STATE_BACKWARD_SIGNAL : animationStrings.STATE_BACKWARD_ORIGIN, params: { originX: edge.x2, originY: edge.y2, deltaX: -edge.deltaX, deltaY: -edge.deltaY }}"
+        (@backPropagationActivateLayer.done)="onBackPropagationSignalSendFinished($event, edge.sourceLayer)"
+        id="error-signal_{{edgeIndex}}" [attr.data-layer]="edge.sourceLayer" r="10" attr.cx="{{edge.x2}}"
+        attr.cy="{{edge.y2}}" fill="#ff5959" class="nn-error-signal">
+      </circle>
+    </g>
+
+    <g *ngFor="let layerNodes of neuralGraph.nodes; index as layer">
+      <g *ngIf="{ unprocessed: unprocessedSamples | async } as samples">
+        <g *ngFor="let node of layerNodes; index as nodeIndex">
+          <g *ngIf="layer === 0 && samples != null && samples.unprocessed.length > 0">
+              <text [attr.x]="(node.x - 160)" [attr.y]="(node.y + 8)" font-size="0.8em">
+                  <tspan *ngIf="samples.unprocessed.length > 2" fill="#c5ccd1" [attr.dx]="0" dy="0" width="10" style="border-right: 1px solid white" >{{ samples.unprocessed[2].input[nodeIndex] }}</tspan>
+                  <tspan *ngIf="samples.unprocessed.length > 1" fill="#c5ccd1" [attr.dx]="((samples.unprocessed.length == 2) ? 40 : 10)" dy="0" width="10">{{ samples.unprocessed[1].input[nodeIndex] }}</tspan>
+                  <tspan *ngIf="samples.unprocessed.length > 0" fill="#FFFFFF" font-size="1.2em" font-weight="bold"  [attr.dx]="((samples.unprocessed.length == 1) ? 80 : 10)" dy="0" width="10">{{ samples.unprocessed[0].input[nodeIndex] }}</tspan>
+              </text>
+          </g>
+
+          <g *ngIf="layer === (neuralGraph.nodes.length - 1) && samples != null && samples.unprocessed.length > 0">
+            <text [attr.x]="(node.x + 50)" [attr.y]="(node.y + 8)"  font-size="0.8em">
+                <tspan *ngIf="samples.unprocessed.length > 0" fill="#FFFFFF" font-size="1.2em" font-weight="bold"  [attr.dx]="0" dy="0" width="10" style="border-right: 1px solid white" >{{ samples.unprocessed[0].output[nodeIndex] }}</tspan>
+                <tspan *ngIf="samples.unprocessed.length > 1" fill="#c5ccd1" [attr.dx]="((samples.unprocessed.length == 2) ? 30 : 10)" dy="0" width="10">{{ samples.unprocessed[1].output[nodeIndex] }}</tspan>
+                <tspan *ngIf="samples.unprocessed.length > 2" fill="#c5ccd1" [attr.dx]="((samples.unprocessed.length == 1) ? 60 : 10)" dy="0" width="10">{{ samples.unprocessed[2].output[nodeIndex] }}</tspan>
+            </text>
+          </g>
+
+          <text [attr.x]="(node.x - 45)" [attr.y]="(node.y - 45)" width="60" font-weight="bold">
+            <tspan fill="#ff5959" dx="0" dy="0" width="30">{{ node.value1 | number: '1.3-3'}}</tspan>
+            <tspan *ngIf="node.value1 != null && node.value2 != null" fill="#FFFFFF" dx="5" dy="0" width="30">|</tspan>
+            <tspan fill="#FFFFFF" [attr.x]="(node.x + 20)" dy="0">{{ node.value2 | number: '1.3-3'}}</tspan>
+          </text>
+
+          <circle id="{{node.id}}"
+            [@forwardPropagationActivateLayerNodes]="forwardPropagationActiveLayer === layer ? animationStrings.STATE_FORWARD_ACTIVE : ''"
+            (@forwardPropagationActivateLayerNodes.done)="onForwardPropagationNodesActivated($event, layer)"
+            [@backPropagationActivateLayerNodes]="backPropagationActiveLayer === layer ? animationStrings.STATE_BACKWARD_ACTIVE : ''"
+            (@backPropagationActivateLayerNodes.done)="onBackPropagationLayerActivated($event, layer)" fill="#146FB4"
+            [attr.cy]="node.y" [attr.cx]="node.x" r="30" class="nn-node" />
+          <text
+            [@forwardPropagationActivateLayerNodeLabels]="forwardPropagationActiveLayer === layer ? animationStrings.STATE_FORWARD_ACTIVE : ''"
+            [attr.x]="(node.x - 17)" [attr.y]="(node.y + 5)" fill="#5CF0FD" font-size="0.7em"
+            font-weight="bold">{{ node.id }}</text>
+        </g>
+      </g>
+      <rect *ngIf="neuralGraph.layers[layer].hasErrorMatrix"
+            [attr.x]="(neuralGraph.layers[layer].x  - 30)"
+            [attr.y]="neuralGraph.layers[layer].y"
+            rx="5"
+            height="25"
+            width="25"
+            class="btn-errtable"
+            container="body" [popover]="errormatrix" #errortmatrixTrigger="bs-popover" [popoverContext]="{ layer: layer, trigger: errortmatrixTrigger }" placement="auto" containerClass="popover-matrix">
+            <title>Show error matrix</title></rect>
+      <rect *ngIf="neuralGraph.layers[layer].hasOutputMatrix"
+            [attr.x]="(neuralGraph.layers[layer].x  + 25)"
+            [attr.y]="neuralGraph.layers[layer].y"
+            rx="5"
+            height="25"
+            width="25"
+            class="btn-outtable"
+            container="body"  [popover]="outputmatrix" #outputmatrixTrigger="bs-popover" [popoverContext]="{ layer: layer, trigger: outputmatrixTrigger }" placement="auto" containerClass="popover-matrix">
+            <title>Show ouput matrix</title>
+      </rect>
+      <rect *ngIf="neuralGraph.layers[layer].outEdgeTop != null"
+              [attr.x]="(neuralGraph.layers[layer].outEdgeTop.x1 + neuralGraph.layers[layer].outEdgeTop.deltaX / 2)"
+              [attr.y]="(neuralGraph.layers[layer].outEdgeTop.y1 + neuralGraph.layers[layer].outEdgeTop.deltaY / 2 - 100)"
+              rx="5"
+              height="25"
+              width="25"
+              class="btn-weighttable"
+              container="body" [popover]="weightmatrix" #weightmatrixTrigger="bs-popover" [popoverContext]="{ layer: layer, trigger: weightmatrixTrigger }" placement="auto" containerClass="popover-matrix">
+                <title>Show weight matrix</title>
+      </rect>
+
+
+
+    </g>
+  </svg>
+</div>
+
+<ng-template #weightmatrix let-layer="layer" let-trigger="trigger">
+  <div class="common-matrix weight-matrix">
+    <span class="matrix-title">Weight Matrix</span>
+    <button class="btn btn-sm btn-rect btn-popover-close" (click)="trigger.hide()"><i class="fas fa-times"></i></button>
+    <nn-matrix [matrix]="matrices.weightMatrices[layer]" [layer]="layer"></nn-matrix>
+  </div>
+</ng-template>
+
+<ng-template #outputmatrix let-layer="layer" let-trigger="trigger">
+  <div class="common-matrix output-matrix">
+
+    <span class="matrix-title">Output Matrix</span>
+    <button class="btn btn-sm btn-rect btn-popover-close" (click)="trigger.hide()"><i class="fas fa-times"></i></button>
+    <nn-matrix [matrix]="matrices.outputMatrices[layer]" [layer]="layer" [hasColHeader]="false"></nn-matrix>
+  </div>
+</ng-template>
+
+<ng-template #errormatrix let-layer="layer" let-trigger="trigger">
+  <div class="common-matrix error-matrix">
+    <span class="matrix-title">Error Matrix</span>
+    <button class="btn btn-sm btn-rect btn-popover-close" (click)="trigger.hide()"><i class="fas fa-times"></i></button>
+    <nn-matrix [matrix]="matrices.errorMatrices[layer]" [layer]="layer" [hasColHeader]="false"></nn-matrix>
+  </div>
+</ng-template>
+
+
+
+
+
+

@@ -1,0 +1,20 @@
+<div class="fixed-bottom bottom-nav row">
+  <div class="col-2 pr-1 pl-1">
+    <button class="btn btn-block btn-highlight btn-rect btn-sm" (click)="performStop()"><i class="fas fa-stop"></i></button>
+  </div>
+  <div class="col-2 pr-1 pl-1">
+    <button  class="btn btn-block btn-highlight btn-rect btn-sm" [disabled]="disablePlay" (click)="performPlay()"><i class="fas fa-play"></i></button>
+  </div>
+  <div class="col-2 pr-1 pl-1">
+    <button class="btn btn-block btn-highlight btn-rect btn-sm" [disabled]="disablePlay" (click)="performForward()"><i class="fas fa-forward"></i></button>
+  </div>
+  <div class="col-2 pr-1 pl-1">
+    <button class="btn btn-block btn-highlight btn-rect btn-sm" [disabled]="disablePlay" (click)="performFastForward()"><i class="fas fa-fast-forward"></i></button>
+  </div>
+  <div class="col-2 pr-1 pl-1">
+    <button id="playButton" class="btn btn-highlight btn-rect btn-block btn-sm" [disabled]="disablePlay" (click)="perfromStep()"><i class="fas fa-step-forward"></i></button>
+  </div>
+  <div class="col-2 pr-1 pl-4">
+    <button class="btn btn-highlight btn-circle btn-block btn-lg" [disabled]="disablePlay" (click)="setDelay()"><strong>{{delay}}x</strong></button>
+  </div>
+</div>

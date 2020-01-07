@@ -1,0 +1,32 @@
+<div class="message-item" [ngClass]="{ 'message-item-current': message.isCurrent }" @appearance>
+
+  <ng-container *ngTemplateOutlet="{ 'initialization' : initialization, 'calcoutput' : calcoutput, 'calcoutput_details' : calcoutput_details, 'backpropagation' : backpropagation }[message.token]; context: message.params"></ng-container>
+
+</div>
+
+<ng-template #initialization>
+  <p>Network created. Weights have been distributed between layer neurons by random distribution.</p>
+  <p>Click on the yellow boxes in graph view to view the corresponding weight matrices or switch to the matrix view</p>
+</ng-template>
+
+<ng-template #calcoutput let-layer="layer">
+  <p>Output calculated for layer {{layer}}.</p>
+
+  <ng-container *ngTemplateOutlet="layer === 0 ? calcoutput_firstlayer : calcoutput_otherlayer"> </ng-container>
+
+  <ng-template #calcoutput_firstlayer>
+      <p>Output of the first layer is always equal to input data.</p>
+  </ng-template>
+  <ng-template #calcoutput_otherlayer>
+      <p>Output of each layer {{layer}} node is sum of products of weights (wi) and outputs (oi) of the previous layer {{ (layer - 1) }} linked to the output node.</p>
+  </ng-template>
+
+  <p>Click on the white box in graph view to display full calculated output matrix or switch to matrix view.</p>
+</ng-template>
+
+
+
+
+<ng-template #backpropagation>
+    <p>Backpropagation started</p>
+</ng-template>

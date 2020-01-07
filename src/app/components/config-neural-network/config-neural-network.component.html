@@ -1,0 +1,82 @@
+
+<div class="config-wrapper" >
+  <div class="config-header row">
+    <div class="col-4">
+      <button [disabled]="disableLayers || config.layers.length === constParam.MAX_NUM_LAYERS" class="btn btn-highlight btn-rect btn-sm" (click)="addLayer()"><i class="fas fa-plus"></i> Add Hidden Layer</button>
+      <span class="btn-help" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.NetworkConfig.AddHiddenLayer' | translate: constParam }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span>
+    </div>
+    <div class="col-8 title">
+      Neural Network: Custom
+    </div>
+  </div>
+  <div class="config-body">
+    <div class="config-body-content">
+    <section #layersection class="config-layers section-1">
+        <div *ngFor="let layer of config.layers; index as layerIndex" class="node-slider">
+          <div class="layer-title" [ngSwitch]="layerIndex" [class.layer-title-hidden]="layerIndex > 0 && (layerIndex < (config.layers.length - 1))">
+              Layer {{layerIndex}}:
+              <ng-container *ngSwitchCase="0">(INPUT) <span class="btn-help-dark" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.NetworkConfig.Layer' | translate: constParam }} {{ 'Hints.NetworkConfig.InputLayer' | translate: constParam }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span></ng-container>
+              <ng-container *ngSwitchCase="config.layers.length - 1">(OUTPUT) <span class="btn-help-dark" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.NetworkConfig.Layer' | translate: constParam }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span></ng-container>
+              <ng-container *ngSwitchDefault>(HIDDEN) <span class="btn-help" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.NetworkConfig.Layer' | translate: constParam }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span></ng-container>
+
+              <a href="javascript:undefined" class="btn-delete" (click)="removeLayer(layer)" *ngSwitchDefault><i class="fas fa-times"></i></a>
+          </div>
+          <div class="layer-content row row-fix">
+            <table class="table table-sm layer-table">
+              <tr>
+                <th>Neurons</th>
+                <th>Activation</th>
+                <th>Formula</th>
+              </tr>
+              <tr>
+                <td style="width:50%">
+                    <ng5-slider [(value)]="config.layers[layerIndex].neuronCount" (valueChange)="onNeuronChange(layerIndex, $event)" [options]="{floor: sliderOptions.floor, ceil: sliderOptions.ceil, showTicksValues: sliderOptions.showTicksValues, readOnly: disableLayers }"></ng5-slider>
+                </td>
+                <td style="width:25%;">
+                        <select class="form-control" [(ngModel)]="config.layers[layerIndex].activation" [disabled]="layerIndex === 0">
+                            <option *ngFor="let activation of activations" [ngValue]="activation">{{activation.name}}</option>
+                        </select>
+                </td>
+                <td style="width:25%;">
+                  <div class="formula" [mathjax]="[config.layers[layerIndex].activation.funcFormula]">
+                        \( {{ '{}' }} \)
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+    </section>
+    <section class="config-params row section-2">
+        <div class="col-3 param">
+          <div class="param-title">Weight distribution<span class="btn-help" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.NetworkConfig.WeightDistribution' | translate: constParam }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span></div>
+          <div class="param-value">
+              <select class="form-control" (ngModelChange)="onDistributionChange($event)" [ngModel]="config.weightDistribution">
+                  <option *ngFor="let distribution of weightDistributions" [ngValue]="distribution">{{distribution.name}}</option>
+              </select>
+          </div>
+        </div>
+        <div class="col-9 data-item" style="border-top: none; padding: 0">
+          <div class="data-list mb-1">
+            <span class="title mr-2">Features:</span>
+            <div *ngFor="let label of config.inputLabels; index as neuron; trackBy:trackByIndex;" class="data mr-2">
+              <div class="neuron-label">N{{neuron}}</div>
+              <div>
+                <input type="text" class="input-text" [(ngModel)]="config.inputLabels[neuron]" />
+              </div>
+            </div>
+          </div>
+          <div class="data-list mb-1">
+              <span class="title mr-2">Classes:</span>
+              <div *ngFor="let label of config.outputLabels; index as neuron; trackBy:trackByIndex;" class="data mr-2">
+                <div class="neuron-label">N{{neuron}}</div>
+                <div>
+                  <input type="text" class="input-text" [(ngModel)]="config.outputLabels[neuron]" />
+                </div>
+              </div>
+            </div>
+        </div>
+    </section>
+    </div>
+  </div>
+</div>

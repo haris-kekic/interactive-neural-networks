@@ -1,0 +1,9 @@
+<div #childcontainer></div>
+<div class="modal-footer">
+    <div class="footer-button">
+      <button class="btn btn-highlight btn-block btn-rect btn-sm" (click)="bsModalRef.hide()"><i class="fas fa-ban"></i> Cancel</button>
+   </div>
+   <div class="footer-button">
+      <button class="btn btn-highlight btn-block btn-rect btn-sm" [disabled]="!(options.proceedCondition | async)" (click)="proceed.emit(); bsModalRef.hide()">Proceeed <i class="fas fa-caret-right"></i></button>
+   </div>
+</div>

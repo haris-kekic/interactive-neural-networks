@@ -1,0 +1,29 @@
+
+  <div class="modal-title">
+    {{options.title}}
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-2">
+        <h1 *ngIf="options.type === dialogType.INFO"><i class="fas fa-info-circle"></i></h1>
+        <h1 *ngIf="options.type === dialogType.WARNING"><i class="fas fa-exclamation-circle"></i></h1>
+        <h1 *ngIf="options.type === dialogType.QUESTION"><i class="fas fa-question-circle"></i></h1>
+        <h1 *ngIf="options.type === dialogType.ERROR"><i class="fas fa-exclamation-triangle"></i></h1>
+      </div>
+      <div class="col-10">
+          {{options.message}}
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div *ngIf="options.type !== dialogType.QUESTION" class="footer-button">
+      <button class="btn btn-highlight btn-rect btn-block btn-sm" (click)="ok()"><i class="fas fa-check"></i> OK</button>
+    </div>
+    <div *ngIf="options.type === dialogType.QUESTION" class="footer-button">
+      <button class="btn btn-highlight btn-rect btn-block btn-sm" (click)="no()"><i class="fas fa-times"></i> No</button>
+    </div>
+    <div *ngIf="options.type === dialogType.QUESTION" class="footer-button">
+      <button class="btn btn-highlight btn-rect btn-block btn-sm" (click)="yes()"><i class="fas fa-check"></i> Yes</button>
+    </div>
+  </div>
+

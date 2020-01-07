@@ -1,0 +1,6 @@
+<nn-nav-view [(view)]="curView" [(mode)]="curMode"></nn-nav-view>
+<div class="view-main">
+  <nn-view-graph [hidden]="curView != neuralNetworkView.GRAPH" [isHidden]="curView != neuralNetworkView.GRAPH"></nn-view-graph>
+  <nn-view-matrix [hidden]="curView != neuralNetworkView.MATRIX"></nn-view-matrix>
+</div>
+<nn-nav-panel></nn-nav-panel>

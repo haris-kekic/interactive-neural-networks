@@ -1,0 +1,23 @@
+{
+  "Config": {
+    "Playground": {
+      "WelcomeText": "Please, select your playground to configure your own network or choose built-in example to explore step by step how neural networks operate. <br />Use the hints by hovering the question mark button <span class='btn-help'><i class='fas fa-question-circle'></i></span> to understand how to configure your network. <br /><br />Please note, this interactive playground is just for learning purposes."
+    },
+    "TrainingPhase": {
+      "Title": "Training Phase"
+    }
+  },
+  "Hints": {
+    "NetworkConfig": {
+      "AddHiddenLayer": "Use this button to add a new hidden layer to the list below for further configuration. In sum you can add maximum of {{MAX_NUM_LAYERS}} layers. That is the upper limit in this application.",
+      "WeightDistribution": "Select the random initialization of the neural network weight. The values will take random values between -0.5 and 0.5.",
+      "Layer": "Move the slider to set the number of neurons in the layer. Also, select the activation function which layer neurons should use for their output calculation.",
+      "InputLayer": "The only exception is the input layer, where by default the activation function is the identity function and this can't be changed."
+    },
+    "TrainingPhaseConfig": {
+      "AddSamplesButton": "Use this button to add samples individually.",
+      "ClearSamplesButton": "Use this button to delete all samples.",
+      "FromFileButton": "Use this button to upload samples. Pay attention, that the the file should contain a comma separated inputs and outputs per row for single sample. The number of columns must correspond to the number of inputs and outputs toghether. For example, if we have 4 inputs and 2 ouputs, then the first 4 values will be treated as input and the last 2 as outputs. Also, the values should be scaled to a value between (0-1)."
+    }
+  }
+}

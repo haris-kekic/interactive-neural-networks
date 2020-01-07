@@ -1,0 +1,64 @@
+<div class="matrix-view">
+
+  <div class="common-matrix sample-matrix row row-fix">
+    <div class="main-title mr-5">Samples</div>
+    <div class="row row-fix matrices" *ngIf="{ unprocessed: unprocessedSamples | async } as samples">
+      <ng-container *ngFor="let sample of samples.unprocessed; index as sampleIndex">
+        <div class="row row-fix inner-matrix mr-5" [ngClass]="{ 'highlight-matrix-1' : sampleIndex === 0 }">
+          <div [ngClass]="{ 'unprocessed-matrix' : sampleIndex > 0 }">
+              <div class="title pl-1 pr-1">Inputs</div>
+              <nn-matrix [layer]="0" [hasColHeader]="false" [matrix]="toMatrix(sample.input)"></nn-matrix>
+          </div>
+          <div [ngClass]="{ 'unprocessed-matrix' : sampleIndex > 0 }">
+              <div class="title pl-1 pr-1">Expected Outputs</div>
+              <nn-matrix *ngIf="sample.output != null && sample.output.length > 0" [layer]="layerNeurons.length - 1" [hasColHeader]="false" [matrix]="toMatrix(sample.output)"></nn-matrix>
+          </div>
+        </div>
+      </ng-container>
+      <div *ngIf="samples.unprocessed == null || samples.unprocessed.length == 0" class="empty">No data...</div>
+    </div>
+  </div>
+
+  <div class="common-matrix weight-matrix row row-fix">
+    <div class="main-title mr-5">Weight Matrices</div>
+    <div class="row row-fix matrices">
+      <ng-container *ngFor="let matrix of matrices.weightMatrices; index as layer">
+        <div class="inner-matrix mr-5" [ngClass]="{ 'highlight-matrix-2' : (backPropagationLayer - 1) === layer }">
+          <div class="title">Layers: {{layer}} <i class="fas fa-long-arrow-alt-right"></i> {{(layer + 1)}}</div>
+          <nn-matrix [layer]="layer" [matrix]="matrix"></nn-matrix>
+        </div>
+      </ng-container>
+      <div *ngIf="matrices.weightMatrices == null || matrices.weightMatrices.length == 0" class="empty">No data...</div>
+    </div>
+  </div>
+
+  <div class="common-matrix output-matrix row row-fix">
+      <div class="main-title mr-5">Output Matrices</div>
+      <div class="row row-fix matrices">
+        <ng-container *ngFor="let matrix of matrices.outputMatrices; index as layer">
+          <div class="inner-matrix mr-5">
+            <div class="title">Layer {{layer}}</div>
+            <nn-matrix [layer]="layer" [matrix]="matrix"></nn-matrix>
+          </div>
+      </ng-container>
+        <div *ngIf="matrices.outputMatrices == null || matrices.outputMatrices.length == 0" class="empty">No data...</div>
+      </div>
+  </div>
+
+  <div class="common-matrix error-matrix row row-fix">
+      <div class="main-title mr-5">Error Matrices</div>
+      <div class="row row-fix matrices">
+        <ng-container *ngFor="let matrix of matrices.errorMatrices; index as layer">
+          <!--ngIf check, because error matrices are generated backwards, starting with the last layer.
+              The error matrix list allocates that many array items, and fills out the matrices from the last
+              to the first. As a consequence, during the backpropagation and error matrix calculation,
+              the first items of the error matrix list can be empty.-->
+          <div *ngIf="matrix != null && matrix.length > 0" class="inner-matrix mr-5">
+              <div class="title">Layer {{layer}}</div>
+              <nn-matrix [layer]="layer" [matrix]="matrix"></nn-matrix>
+          </div>
+        </ng-container>
+        <div *ngIf="matrices.errorMatrices == null || matrices.errorMatrices.length == 0" class="empty">No data...</div>
+      </div>
+  </div>
+</div>

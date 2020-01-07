@@ -1,0 +1,5 @@
+<div class="message-board">
+  <div *ngIf="(messages | async).length" class="pt-2 pb-1">
+      <nn-message-board-item *ngFor="let message of messages | async" [message]="message"></nn-message-board-item>
+  </div>
+</div>
