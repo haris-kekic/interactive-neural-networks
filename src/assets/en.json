@@ -4,7 +4,8 @@
       "WelcomeText": "Please, select your playground to configure your own network or choose built-in example to explore step by step how neural networks operate. <br />Use the hints by hovering the question mark button <span class='btn-help'><i class='fas fa-question-circle'></i></span> to understand how to configure your network. <br /><br />Please note, this interactive playground is just for learning purposes."
     },
     "TrainingPhase": {
-      "Title": "Training Phase"
+      "Title": "Training Phase",
+      "Information": "Maximum sample limit is {{SAMPLE_LIMIT}}. Data should be scaled to values between (0-1)"
     }
   },
   "Hints": {
@@ -17,7 +18,7 @@
     "TrainingPhaseConfig": {
       "AddSamplesButton": "Use this button to add samples individually.",
       "ClearSamplesButton": "Use this button to delete all samples.",
-      "FromFileButton": "Use this button to upload samples. Pay attention, that the the file should contain a comma separated inputs and outputs per row for single sample. The number of columns must correspond to the number of inputs and outputs toghether. For example, if we have 4 inputs and 2 ouputs, then the first 4 values will be treated as input and the last 2 as outputs. Also, the values should be scaled to a value between (0-1)."
+      "FromFileButton": "Use this button to upload samples. Pay attention, that the the file should contain a comma separated inputs and outputs per row for single sample. The number of columns must correspond to the number of inputs and outputs toghether. For example, if we have 4 inputs and 2 ouputs, then the first 4 values will be treated as input and the last 2 as outputs. Also, the data should be scaled to values between (0-1)."
     }
   }
 }

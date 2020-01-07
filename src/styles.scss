@@ -430,6 +430,11 @@ circle {
       padding: 1em 2em;
     }
 
+    .section-centered {
+      text-align: center;
+      color: #5CF0FD;
+    }
+
     .section-title {
       background: #5CF0FD;
       text-align: center;
@@ -560,6 +565,13 @@ aw-wizard-navigation-bar ul.steps-indicator li.navigable a:hover .label {
         background-color: #5CF0FD !important;
         border-color: #5CF0FD;
         color: #001D4D;
+      }
+
+      .input-sm-1 {
+        width: 50px;
+        text-align: center;
+        padding: 0.05em 0.1em;
+        font-size: 0.8em;
       }
 
     }

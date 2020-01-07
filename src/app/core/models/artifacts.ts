@@ -54,6 +54,7 @@ export interface NeuralNetworkConfig {
 
 export interface NeuralNetworkTrainingConfig {
   learnRate: number;
+  trainDataPortion: number;
 }
 
 export interface NeuralNetworkMatrices {
@@ -77,5 +78,6 @@ export const ActivationFunctionList: Activation[] = [
 ];
 
 export const TrainingConfigDefaults: NeuralNetworkTrainingConfig = {
-  learnRate: 0.1
+  learnRate: 0.5,
+  trainDataPortion: 80
 };

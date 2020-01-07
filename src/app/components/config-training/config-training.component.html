@@ -1,8 +1,8 @@
-<div class="config-wrapper">
+<div class="config-wrapper" *ngIf="{ count: sampleCount | async } as sample">
   <div class="config-header row">
     <div class="col-8 row">
       <div class="col-4 pr-0">
-        <button [disabled]="(this.sampleCount | async) >= SAMPLE_LIMIT" class="btn btn-highlight btn-rect btn-sm" (click)="addSample()"><i class="fas fa-plus"></i> Add one sample</button>
+        <button [disabled]="sample.count >= constParam.SAMPLE_LIMIT" class="btn btn-highlight btn-rect btn-sm" (click)="addSample()"><i class="fas fa-plus"></i> Add one sample</button>
         <span class="btn-help" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.TrainingPhaseConfig.AddSamplesButton' | translate }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span>
       </div>
       <div class="col-4 pl-0 pr-0">
@@ -26,7 +26,7 @@
       <section class="section-1">
         <ngx-ui-loader [loaderId]="'file-loader'"></ngx-ui-loader>
         <div class="section-title">
-          {{ (this.sampleCount | async) }} samples
+          {{ sample.count }} samples
         </div>
         <div *ngIf="samples !== null">
           <div *ngFor="let sample of this.samples | async; index as sampleIndex" class="data-item">
@@ -50,12 +50,22 @@
             </div>
           </div>
         </div>
+        <div class="section-centered" *ngIf="sample.count == 0">
+          {{ 'Config.TrainingPhase.Information' | translate: constParam }}
+        </div>
     </section>
     <section class="config-params row section-2">
-      <div class="col-3 param">
+      <div class="col-2 param">
         <div class="param-title">Learn rate: </div>
         <div class="param-value">
           <ng-number-picker [(value)]="config.learnRate" min="0.1" size="sm" step="0.1" precision="0.1"></ng-number-picker>
+        </div>
+      </div>
+      <div class="col-5 param">
+        <div class="param-title">Train/test data ratio:</div>
+        <div class="param-value ratio-slider text-center">
+          <input readonly class="text-center input-text input-sm-1" type="text" [value]="getTrainTestRatio()">
+          <ng5-slider [(value)]="config.trainDataPortion" [options]="sliderOptions"></ng5-slider>
         </div>
       </div>
     </section>

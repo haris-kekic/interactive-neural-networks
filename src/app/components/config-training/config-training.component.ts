@@ -26,7 +26,9 @@ export class ConfigTrainingComponent extends ViewBaseComponent implements OnInit
 
   config: NeuralNetworkTrainingConfig = TrainingConfigDefaults;
 
-  readonly SAMPLE_LIMIT = 500;
+  sliderOptions = { floor: 0, ceil: 100, tickStep: 10, minLimit: 10, maxLimit: 90, showTicks: true, step: 10, animate: false };
+
+  readonly constParam = { SAMPLE_LIMIT: 500 };
 
   fileLoaderId = 'file-loader';
 
@@ -93,9 +95,9 @@ export class ConfigTrainingComponent extends ViewBaseComponent implements OnInit
       reader.onload = () => {
         const csv: string = reader.result.toString();
         this.subscriptions[this.subscriptions.length] = this.parsingService.parseCsvFile(csv).subscribe((resultTable) => {
-          if (resultTable.length > this.SAMPLE_LIMIT) {
-            resultTable.splice(this.SAMPLE_LIMIT, resultTable.length);
-            this.toastService.warning(`Limit of ${this.SAMPLE_LIMIT} exceeded: Only ${this.SAMPLE_LIMIT} imported.`);
+          if (resultTable.length > this.constParam.SAMPLE_LIMIT) {
+            resultTable.splice(this.constParam.SAMPLE_LIMIT, resultTable.length);
+            this.toastService.warning(`Limit of ${this.constParam.SAMPLE_LIMIT} exceeded: Only ${this.constParam.SAMPLE_LIMIT} imported.`);
           }
 
           const expectedValueCount = inputLayerNeurons + outputLayerNeurons;
@@ -130,5 +132,9 @@ export class ConfigTrainingComponent extends ViewBaseComponent implements OnInit
 
   ngOnDestroy() {
     super.ngOnDestroy();
+  }
+
+  getTrainTestRatio() {
+    return this.config.trainDataPortion + '/' + (this.sliderOptions.ceil - this.config.trainDataPortion);
   }
 }
