@@ -29,7 +29,7 @@ import { ViewBaseComponent } from './components/view-base/view-base.component';
 import { ConfigMainComponent } from './components/config-main/config-main.component';
 import { ConfigNeuralNetworkComponent } from './components/config-neural-network/config-neural-network.component';
 import { ViewGuard } from './guard/view-guard';
-import { ConfigTrainingComponent } from './components/config-training/config-training.component';
+import { ConfigDatasetComponent } from './components/config-dataset/config-dataset.component';
 import { ToastrModule } from 'ngx-toastr';
 import { NumberInputComponent } from './components/number-input/number-input.component';
 import { ConfigExecutionComponent } from './components/config-execution/config-execution.component';
@@ -82,7 +82,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     NumberToArrayPipe,
     ConfigMainComponent,
     ConfigNeuralNetworkComponent,
-    ConfigTrainingComponent,
+    ConfigDatasetComponent,
     ConfigExecutionComponent,
     ViewBaseComponent,
     ViewMainComponent,
@@ -131,7 +131,7 @@ export function HttpLoaderFactory(http: HttpClient) {
               ViewGuard,
             //  { provide: ErrorHandler, useClass: AppErrorHandler }
             ],
-  entryComponents: [ConfigTrainingComponent, ConfigExecutionComponent, PhaseModalComponent, DialogModalComponent],
+  entryComponents: [ConfigDatasetComponent, ConfigExecutionComponent, PhaseModalComponent, DialogModalComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

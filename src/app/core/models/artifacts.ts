@@ -7,7 +7,7 @@ export const NeuralNetworkPlayground = {
 
 export enum NeuralNetworkPhase {
   TRAINING,
-  EXECUTION
+  TEST
 }
 
 export enum NeuralNetworkView {

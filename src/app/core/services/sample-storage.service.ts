@@ -63,8 +63,15 @@ export abstract class SampleStorageService {
 
   public addSample(sample: Sample) {
     sample.id = UUID.UUID();
-    this.workingSampleStore.unshift(sample); // add at first position
+    this.workingSampleStore.push(sample); // add at first position
     this.notifyObservers();
+  }
+
+  public shuffleSamples() {
+    for (let i = this.workingSampleStore.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.workingSampleStore[i], this.workingSampleStore[j]] = [this.workingSampleStore[j], this.workingSampleStore[i]];
+  }
   }
 
   public clear() {
@@ -125,7 +132,7 @@ export class TrainingSampleStorageService extends SampleStorageService {
   providedIn: 'root'
 })
 export class ExecutionSampleStorageService extends SampleStorageService {
-  token = NeuralNetworkPhase.EXECUTION;
+  token = NeuralNetworkPhase.TEST;
 }
 
 @Injectable({

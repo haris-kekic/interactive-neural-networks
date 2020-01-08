@@ -1,0 +1,35 @@
+::ng-deep {
+
+  .ratio-slider .ng5-slider {
+    margin: 5px;
+  }
+
+  .ratio-slider .ng5-slider .ng5-slider-pointer {
+    width: 8px;
+    height: 16px;
+    top: auto; /* to remove the default positioning */
+    bottom: 0;
+    background-color: #5CF0FD !important;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+  }
+
+  .ratio-slider .ng5-slider .ng5-slider-pointer:after {
+    display: none;
+  }
+
+  .ratio-slider .ng5-slider .ng5-slider-bubble {
+    bottom: 14px;
+    display: none;
+  }
+
+  .ratio-slider .ng5-slider .ng5-slider-tick {
+    width: 1px;
+    height: 10px;
+    margin-left: 4px;
+    border-radius: 0;
+    background: #ffe4d1 !important;
+    top: -1px;
+  }
+
+}

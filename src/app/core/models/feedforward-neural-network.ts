@@ -20,7 +20,7 @@ const defaultNetworkConfig: NeuralNetworkConfig = {
   { neuronCount: 2, activation: ActivationFunctionList[1] }],
   inputLabels: ['Label 1', 'Label 2', 'Label 3', 'Label 4'],
   outputLabels: ['Label 1', 'Label 2']
-}
+};
 
 export class FeedForwardNeuralNetwork implements NeuralNetwork {
   private mMatrices: NeuralNetworkMatrices;

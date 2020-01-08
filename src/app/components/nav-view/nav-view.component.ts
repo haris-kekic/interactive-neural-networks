@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Input, HostListener } from '@a
 import { NeuralNetworkService } from 'src/app/core/services/neural-network.service';
 import { StorageSelectorService } from 'src/app/core/services/sample-storage.service';
 import { BsModalService, ModalOptions } from 'ngx-bootstrap';
-import { ConfigTrainingComponent } from '../config-training/config-training.component';
+import { ConfigDatasetComponent } from '../config-dataset/config-dataset.component';
 import { PhaseModalComponent, PhaseModalOptions } from '../phase-modal/phase-modal.component';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { DialogService } from 'src/app/core/services/dialog.service';

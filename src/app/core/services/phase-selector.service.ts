@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ConfigTrainingComponent } from 'src/app/components/config-training/config-training.component';
+import { ConfigDatasetComponent } from 'src/app/components/config-dataset/config-dataset.component';
 import { ConfigExecutionComponent } from 'src/app/components/config-execution/config-execution.component';
 import { NeuralNetworkPhase } from '../models/artifacts';
 
@@ -13,9 +13,9 @@ export class PhaseComponentSelectorService {
     let component: any;
     switch (phase) {
       case NeuralNetworkPhase.TRAINING:
-        component = ConfigTrainingComponent;
+        component = ConfigDatasetComponent;
         break;
-      case NeuralNetworkPhase.EXECUTION:
+      case NeuralNetworkPhase.TEST:
         component = ConfigExecutionComponent;
         break;
     }
