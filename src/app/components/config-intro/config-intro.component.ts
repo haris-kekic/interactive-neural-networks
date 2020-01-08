@@ -4,10 +4,10 @@ import { NeuralNetworkConfig } from 'src/app/core/models/artifacts';
 
 @Component({
   selector: 'nn-config-builtin',
-  templateUrl: './config-builtin.component.html',
-  styleUrls: ['./config-builtin.component.scss']
+  templateUrl: './config-intro.component.html',
+  styleUrls: ['./config-intro.component.scss']
 })
-export class ConfigBuiltinComponent implements OnInit {
+export class ConfigIntroComponent implements OnInit {
 
   config: NeuralNetworkConfig;
 

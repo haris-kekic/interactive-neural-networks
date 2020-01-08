@@ -14,7 +14,7 @@
             <i class="fas fa-upload"></i> Upload from file...
         </label>
         <input id="file" name="file" type="file" (change)="uploadTrainingSamples($event)" accept=".csv" />
-        <span class="btn-help" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.TrainingPhaseConfig.FromFileButton' | translate }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span>
+        <span class="btn-help" container="body" triggers="mouseenter:mouseleave" popover="{{ 'Hints.TrainingPhaseConfig.FromFileButton' | translate: constParam }}" placement="right" containerClass="popover-help"><i class="fas fa-question-circle"></i></span>
       </div>
     </div>
     <div class="col-3 title">
@@ -35,7 +35,7 @@
               <div *ngFor="let value of sample.input; index as neuron; trackBy:trackByIndex;" class="data mr-2">
                 <div class="neuron-label">L0N{{neuron}}</div>
                 <div>
-                  <nn-number-input [(value)]="sample.input[neuron]" step="0.001" emptyDefault="0.001"></nn-number-input>
+                  <nn-number-input [(value)]="sample.input[neuron]" step="0.001" emptyDefault="constParam.SAMPLE_MINVALUE" [minValue]="constParam.SAMPLE_MINVALUE" [maxValue]="constParam.SAMPLE_MAXVALUE"></nn-number-input>
                 </div>
               </div>
             </div>
@@ -44,7 +44,7 @@
                 <div *ngFor="let value of sample.output; index as neuron; trackBy:trackByIndex;" class="data mr-2">
                   <div class="neuron-label">L{{(layerNeurons.length - 1)}}N{{neuron}}</div>
                   <div>
-                    <nn-number-input [(value)]="sample.output[neuron]" step="0.001" emptyDefault="0.001"></nn-number-input>
+                    <nn-number-input [(value)]="sample.output[neuron]" step="0.001" emptyDefault="constParam.SAMPLE_MINVALUE" [minValue]="constParam.SAMPLE_MINVALUE" [maxValue]="constParam.SAMPLE_MAXVALUE"></nn-number-input>
                   </div>
                 </div>
             </div>

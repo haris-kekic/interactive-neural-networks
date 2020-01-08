@@ -28,7 +28,7 @@ export class ConfigTrainingComponent extends ViewBaseComponent implements OnInit
 
   sliderOptions = { floor: 0, ceil: 100, tickStep: 10, minLimit: 10, maxLimit: 90, showTicks: true, step: 10, animate: false };
 
-  readonly constParam = { SAMPLE_LIMIT: 500 };
+  readonly constParam = { SAMPLE_LIMIT: 500, SAMPLE_MINVALUE: 0.001, SAMPLE_MAXVALUE: 0.999 };
 
   fileLoaderId = 'file-loader';
 
@@ -113,7 +113,9 @@ export class ConfigTrainingComponent extends ViewBaseComponent implements OnInit
             const outputData = values.slice(inputLayerNeurons, expectedValueCount);
             const sample = { input: inputData.map(id => Converter.floatOrZero(id) ),
                              output: outputData.map(od => Converter.floatOrZero(od)) };
-            this.sampleStorageService.addSample(sample);
+            if (this.isScaled(sample)) {
+              this.sampleStorageService.addSample(sample);
+            }
           }
 
           this.loaderService.stopLoader(this.fileLoaderId);
@@ -124,6 +126,11 @@ export class ConfigTrainingComponent extends ViewBaseComponent implements OnInit
 
       reader.readAsText(file);
     }
+  }
+
+  isScaled(sample: Sample): boolean {
+    return sample.input.every(value => value >= this.constParam.SAMPLE_MINVALUE && value <= this.constParam.SAMPLE_MAXVALUE)
+            && sample.output.every(value => value >= this.constParam.SAMPLE_MINVALUE && value <= this.constParam.SAMPLE_MAXVALUE);
   }
 
   trackByIndex(index: number, obj: any): any {

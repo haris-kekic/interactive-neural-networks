@@ -1,46 +1,13 @@
 <div class="config-wrapper">
   <div class="config-header row">
-    <div class="col-8 row">
-      <div class="col-4">
-        <button class="btn btn-highlight btn-block btn-rect btn-sm" (click)="addSample()"><i class="fas fa-plus"></i> Add Samples</button>
-      </div>
-      <div class="col-4">
-          <button class="btn btn-highlight btn-block btn-rect btn-sm" (click)="clearSamples()"><i class="fas fa-minus"></i> Clear Samples</button>
-        </div>
-      <div class="col-4">
-        <label for="file" class="file-upload">
-            <i class="fas fa-upload"></i> From File...
-        </label>
-        <input id="file" name="file" type="file" (change)="uploadTrainingSamples($event)" accept=".csv" />
-      </div>
+    <div class="col-7 row">
     </div>
-    <div class="col-4 title">
-        Execution Phase
+    <div class="col-5 title">
+        Build Neural Network
     </div>
   </div>
   <div class="config-body">
-  <div *ngIf="samples !== null" class="samples">
-    <div *ngFor="let sample of this.samples | async; index as sampleIndex" class="data-item">
-      <div class="data-list mb-1">
-        <span class="title mr-2">Input:</span>
-        <div *ngFor="let value of sample.input; index as neuron; trackBy:trackByIndex;" class="data mr-2">
-          <div class="neuron-label">L0N{{neuron}}</div>
-          <div>
-            <nn-number-input [(value)]="sample.input[neuron]" step="0.001" emptyDefault="0.001"></nn-number-input>
-          </div>
-        </div>
-      </div>
-      <div class="data-list">
-          <span class="title mr-2">Output: </span>
-          <div *ngFor="let value of sample.output; index as neuron; trackBy:trackByIndex;" class="data mr-2">
-            <div class="neuron-label">L{{(layerNeurons.length - 1)}}N{{neuron}}</div>
-            <div>
-              <nn-number-input [(value)]="sample.output[neuron]" step="0.001" emptyDefault="0.001"></nn-number-input>
-            </div>
-          </div>
-      </div>
-    </div>
-    </div>
+
   </div>
 </div>
 

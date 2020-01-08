@@ -37,7 +37,7 @@ import { PhaseModalComponent } from './components/phase-modal/phase-modal.compon
 import { AppErrorHandler } from './handlers/app-error.handler';
 import { DialogModalComponent } from './components/dialog-modal/dialog-modal.component';
 import { ConfigPlaygroundComponent } from './components/config-playground/config-playground.component';
-import { ConfigBuiltinComponent } from './components/config-builtin/config-builtin.component';
+import { ConfigIntroComponent } from './components/config-intro/config-intro.component';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 
 const routes: Routes = [
@@ -96,7 +96,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     PhaseModalComponent,
     DialogModalComponent,
     ConfigPlaygroundComponent,
-    ConfigBuiltinComponent
+    ConfigIntroComponent
   ],
   imports: [
     BrowserModule,

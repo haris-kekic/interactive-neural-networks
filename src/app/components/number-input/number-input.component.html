@@ -1,1 +1,1 @@
-<input type="number" [ngModel]="value" (ngModelChange)="onValueChange($event)" [step]="step"  />
+<input #inputcontrol type="number" [ngModel]="value" (ngModelChange)="onValueChange($event)" (keyup)="onKeyUp($event)" [step]="step" [min]="minValue" [max]="maxValue"  />

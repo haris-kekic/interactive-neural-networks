@@ -7,7 +7,7 @@
     <div class="config-body">
 
       <div class="config-body-content">
-          <section class="section-welcome" [innerHTML]="'Config.Playground.WelcomeText' | translate">
+          <section class="section-text" [innerHTML]="'Config.Playground.WelcomeText' | translate">
 
           </section>
           <fieldset class="btn-select-group" btnRadioGroup [ngModel]="selected" (ngModelChange)="valueChange($event)">
@@ -16,7 +16,7 @@
                <label class="btn btn-select btn-block" btnRadio="{{ playground.CUSTOM }}" tabindex="0" role="button"><i class="fas fa-cog"></i> Custom Neural Network</label>
             </div>
             <div class="btn-select-wrapper">
-              <label class="btn btn-select btn-block" btnRadio="{{ playground.BUILTIN }}" tabindex="1" role="button"><i class="fas fa-drafting-compass"></i> Built-in Example</label>
+              <label class="btn btn-select btn-block" btnRadio="{{ playground.BUILTIN }}" tabindex="1" role="button"><i class="fas fa-drafting-compass"></i> Built-in Example: Iris Dataset</label>
             </div>
 
         </fieldset>
