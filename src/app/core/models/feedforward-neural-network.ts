@@ -33,6 +33,8 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
 
   private mNetworkConfig: NeuralNetworkConfig;
   private mTrainingConfig: NeuralNetworkTrainingConfig;
+  private mSampleError = 0;
+  private mSampleDerivativeSum = 0;
 
   // maps all matrices from math matrix object to an two dimensional array
   public get matrices() {
@@ -170,6 +172,8 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
     this.mMatrices.outputMatrices.splice(0, this.mMatrices.outputMatrices.length); // safely clear arrays
 
     this.mLayerIndex = 0;
+    this.mSampleError = 0;
+    this.mSampleDerivativeSum = 0;
   }
 
   public train(inputList: number[], targetList: number[]) {
@@ -217,6 +221,8 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
         return;
       }
 
+
+
       this.normalizeLayerIndex();
           // Backpropagation
       if (this.canPropagateBackward) {
@@ -228,6 +234,15 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
         observer.complete();
         return;
       }
+
+      this.mSampleError = math.sum(math.square(this.mMatrices.errorMatrices[this.errorMatrices.length - 1]));
+
+      // Skip the derivates of the first input layer
+      this.mMatrices.derivativeMatrices.slice(1).forEach((matrix) => {
+        const squareMatrix = math.square(matrix);
+        const sumSquareMatrix = math.sum(squareMatrix);
+        this.mSampleDerivativeSum += sumSquareMatrix;
+      });
 
       processingResult.direction = PropagationDirection.FINISHED;
       observer.next(processingResult);
