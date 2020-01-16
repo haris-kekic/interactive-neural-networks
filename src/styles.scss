@@ -141,7 +141,7 @@ circle {
   margin: 0px;
 }
 
-.message-board {
+.left-panel {
   background: #305796;
   overflow-y: auto;
   min-height: 100vh;
@@ -150,6 +150,23 @@ circle {
   background: linear-gradient(90deg, #305796 97%, #3a9fec 100%, );
   z-index: 999;
   padding: 0.5em 1.3em 0.5em 0.8em;
+}
+
+.table-progress {
+  background-color: #5CF0FD;
+
+  table {
+    tr {
+      td {
+        border-top: 1px solid #305796;
+      }
+    }
+  }
+}
+
+.message-board {
+  overflow-y: auto;
+  height: 50vh;
 }
 
 .message-item {

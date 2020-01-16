@@ -45,7 +45,7 @@ export class NeuralNetworkService {
   private backPropagationSub = new Subject<PropagationResult>();
   private propagationStopSub = new Subject();
   private samplePropagationStartSub = new Subject();
-  private samplePropagationEndSub = new Subject();
+  private samplePropagationEndSub = new Subject<PropagationResult>();
   private isProcessingSub = new BehaviorSubject<boolean>(false);
   private storageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
 
@@ -163,8 +163,11 @@ export class NeuralNetworkService {
       case PropagationDirection.FINISHED:
         this.storageService.sampleProcessed(this.processingSample.id);
         this.processingSample = null;
+        const matrices = {...this.neuralNetwork.matrices }
         this.neuralNetwork.reset();
-        this.samplePropagationEndSub.next();
+        this.samplePropagationEndSub.next({ layer: null,
+                                            matrices,
+                                            options: null });
     }
   }
 }

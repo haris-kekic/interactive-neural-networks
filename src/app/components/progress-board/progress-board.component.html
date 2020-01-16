@@ -1,0 +1,23 @@
+
+<div style="display: block;">
+  <canvas baseChart width="400" height="250"
+              style="background-color: #5CF0FD;"
+              [datasets]="errorChartData"
+              [labels]="errorChartLabels"
+              [options]="errorChartOptions"
+              [colors]="errorChartColors"
+              [legend]="errorChartLegend"
+              [chartType]="errorChartType"
+              [plugins]="errorChartPlugins"
+              (chartHover)="chartHovered($event)"
+              (chartClick)="chartClicked($event)"></canvas>
+  </div>
+
+  <div class="table-progress">
+    <table class="table table-sm">
+      <tr><td colspan="2">Epoch</td><td>1</td></tr>
+      <tr><td colspan="2">Samples (completed/total)</td><td>1/100</td></tr>
+      <tr><td>Error</td><td>Formula</td><td>30</td></tr>
+    </table>
+  </div>
+

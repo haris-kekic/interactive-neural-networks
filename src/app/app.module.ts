@@ -11,6 +11,7 @@ import { NumberPickerModule} from 'ng-number-picker';
 import { UiSwitchModule } from 'ngx-ui-switch';
 import { NgxUiLoaderModule, POSITION, NgxUiLoaderConfig, SPINNER, PB_DIRECTION } from 'ngx-ui-loader';
 import { MathJaxModule } from 'ngx-mathjax';
+import { ChartsModule } from 'ng2-charts';
 
 import { AppComponent } from './app.component';
 import { ZoomDirective } from './directives/zoom.directive';
@@ -39,6 +40,7 @@ import { DialogModalComponent } from './components/dialog-modal/dialog-modal.com
 import { ConfigPlaygroundComponent } from './components/config-playground/config-playground.component';
 import { ConfigIntroComponent } from './components/config-intro/config-intro.component';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { ProgressBoardComponent } from './components/progress-board/progress-board.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'config', pathMatch: 'full' },
@@ -96,14 +98,15 @@ export function HttpLoaderFactory(http: HttpClient) {
     PhaseModalComponent,
     DialogModalComponent,
     ConfigPlaygroundComponent,
-    ConfigIntroComponent
+    ConfigIntroComponent,
+    ProgressBoardComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     RouterModule.forRoot(routes),
     HttpClientModule,
-
+    ChartsModule,
     ArchwizardModule,
     Ng5SliderModule,
     NumberPickerModule,
