@@ -63,12 +63,24 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
     return [...this.mMatrices.errorMatrices.map((matrix) => [...matrix.clone().toArray() ])];
   }
 
+  public get sampleError(): number {
+    return this.mSampleError;
+  }
+
+  public get sampleDerivativeSum(): number {
+    return this.mSampleDerivativeSum;
+  }
+
   public get hasSample(): boolean {
     return this.mInputMatrix != null;
   }
 
   public get currentNetworkConfig() {
     return {...this.mNetworkConfig };
+  }
+
+  public get currentTrainingConfig() {
+    return {...this.mTrainingConfig };
   }
 
   constructor() {
@@ -270,7 +282,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
    }
   }
 
-  private propagateBackward() {
+  public propagateBackward() {
     // check if back propagation possible (e.g. if reached the input layer)
     if (!this.canPropagateBackward) {
       return;
@@ -321,7 +333,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
               math.add(this.mMatrices.weightMatrices[this.mLayerIndex - 1], weightChangeMatrixLearnRate);
   }
 
-  private propagateForward(): boolean {
+  public propagateForward(): boolean {
     // check if we can propagate
     if (!this.canPropagateForward) {
       return;

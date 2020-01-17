@@ -21,6 +21,11 @@ export interface PropagationResult {
   options: PropagationOptions;
 }
 
+export interface SamplePropagationResult {
+  currentSampleError: number;
+  globalError: number;
+}
+
 export interface Sample {
   id?: string;
   input: number[];
@@ -45,13 +50,15 @@ export class NeuralNetworkService {
   private backPropagationSub = new Subject<PropagationResult>();
   private propagationStopSub = new Subject();
   private samplePropagationStartSub = new Subject();
-  private samplePropagationEndSub = new Subject<PropagationResult>();
+  private samplePropagationEndSub = new Subject<SamplePropagationResult>();
   private isProcessingSub = new BehaviorSubject<boolean>(false);
   private storageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
 
   private neuralNetwork: NeuralNetwork;
   private storageService: SampleStorageService;
   private processingSample: Sample;
+  private globalError = 0;
+  private currentSampleError = 0;
 
   public readonly initialization = this.initSub.asObservable();
   public readonly initializationTraining = this.initTrainingSub.asObservable();
@@ -92,9 +99,12 @@ export class NeuralNetworkService {
   public initializeTraining(config: NeuralNetworkTrainingConfig) {
     try {
       this.neuralNetwork.initTraining(config);
-      const initResult = { learnRate: config };
+      const initResult = { learnRate: config.learnRate };
       this.initTrainingSub.next(initResult);
-
+      this.storageService.samples.subscribe((samples) => {
+        this.neuralNetwork.reset();
+        this.neuralNetwork.propagateSampleStep()
+      });
     } catch (err) {
       this.initTrainingSub.error(err);
     }
@@ -163,11 +173,13 @@ export class NeuralNetworkService {
       case PropagationDirection.FINISHED:
         this.storageService.sampleProcessed(this.processingSample.id);
         this.processingSample = null;
-        const matrices = {...this.neuralNetwork.matrices }
+
+        const learnRate = this.neuralNetwork.currentTrainingConfig.learnRate;
+        this.globalError += (learnRate) * this.neuralNetwork.sampleDerivativeSum;
+
         this.neuralNetwork.reset();
-        this.samplePropagationEndSub.next({ layer: null,
-                                            matrices,
-                                            options: null });
+        this.samplePropagationEndSub.next({ currentSampleError: this.neuralNetwork.sampleError,
+                                            globalError: this.globalError});
     }
   }
 }

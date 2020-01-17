@@ -7,6 +7,10 @@ export interface NeuralNetwork {
   errorMatrices: any[];
   outputMatrices: any[];
   hasSample: boolean;
+  sampleError: number;
+  sampleDerivativeSum: number;
+  currentNetworkConfig: NeuralNetworkConfig;
+  currentTrainingConfig: NeuralNetworkTrainingConfig;
 
   init(networkConfig: NeuralNetworkConfig);
   initTraining(trainingConfig: NeuralNetworkTrainingConfig);
