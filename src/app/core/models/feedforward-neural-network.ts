@@ -34,7 +34,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
   private mNetworkConfig: NeuralNetworkConfig;
   private mTrainingConfig: NeuralNetworkTrainingConfig;
   private mSampleError = 0;
-  private mSampleDerivativeSum = 0;
+  private mSampleDerivativeSum = 0; // used for global error calculation
 
   // maps all matrices from math matrix object to an two dimensional array
   public get matrices() {
@@ -182,6 +182,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
 
     this.mMatrices.errorMatrices.splice(0, this.mMatrices.errorMatrices.length); // safely clear arrays
     this.mMatrices.outputMatrices.splice(0, this.mMatrices.outputMatrices.length); // safely clear arrays
+    this.mMatrices.derivativeMatrices.splice(0, this.mMatrices.derivativeMatrices.length); // safely clear arrays
 
     this.mLayerIndex = 0;
     this.mSampleError = 0;
@@ -200,15 +201,21 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
       this.propagateBackward();
       this.mLayerIndex--;
     }
+
+    this.calcErrors();
   }
 
-  public calcOutput(inputList: number[]) {
-    this.setOutputProcessingSample(inputList);
+  public output(inputList: number[], targetList: number[]) {
+    this.setProcessingSample(inputList, targetList);
 
     while (this.mLayerIndex < this.mLayerCount) {
       this.propagateForward();
       this.mLayerIndex++;
     }
+    const curOutputMatrix = this.mMatrices.outputMatrices[this.mLayerIndex - 1];
+    const errorMatrix = math.subtract(this.mTargetMatrix, curOutputMatrix);
+    this.mMatrices.errorMatrices[this.mMatrices.errorMatrices.length] = errorMatrix;
+    this.calcErrors();
   }
 
   public propagateSampleStep(): Observable<PropagationStepResult> {
@@ -247,19 +254,22 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
         return;
       }
 
-      this.mSampleError = math.sum(math.square(this.mMatrices.errorMatrices[this.errorMatrices.length - 1]));
-
-      // Skip the derivates of the first input layer
-      this.mMatrices.derivativeMatrices.slice(1).forEach((matrix) => {
-        const squareMatrix = math.square(matrix);
-        const sumSquareMatrix = math.sum(squareMatrix);
-        this.mSampleDerivativeSum += sumSquareMatrix;
-      });
+      this.calcErrors();
 
       processingResult.direction = PropagationDirection.FINISHED;
       observer.next(processingResult);
       observer.complete();
       return;
+    });
+  }
+
+  private calcErrors() {
+    this.mSampleError = math.sum(math.square(this.mMatrices.errorMatrices[this.errorMatrices.length - 1]));
+    // Skip the derivates of the first input layer
+    this.mMatrices.derivativeMatrices.slice(1).forEach((matrix) => {
+      const squareMatrix = math.square(matrix);
+      const sumSquareMatrix = math.sum(squareMatrix);
+      this.mSampleDerivativeSum += sumSquareMatrix;
     });
   }
 

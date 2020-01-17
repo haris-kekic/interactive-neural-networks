@@ -50,15 +50,14 @@ export class NeuralNetworkService {
   private backPropagationSub = new Subject<PropagationResult>();
   private propagationStopSub = new Subject();
   private samplePropagationStartSub = new Subject();
-  private samplePropagationEndSub = new Subject<SamplePropagationResult>();
+  private samplePropagationEndSub = new Subject();
   private isProcessingSub = new BehaviorSubject<boolean>(false);
   private storageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
+  private globalErrorSub = new BehaviorSubject<number>(0);
 
   private neuralNetwork: NeuralNetwork;
   private storageService: SampleStorageService;
   private processingSample: Sample;
-  private globalError = 0;
-  private currentSampleError = 0;
 
   public readonly initialization = this.initSub.asObservable();
   public readonly initializationTraining = this.initTrainingSub.asObservable();
@@ -69,6 +68,7 @@ export class NeuralNetworkService {
   public readonly samplePropagationEnd = this.samplePropagationEndSub.asObservable();
   public readonly isProcessing = this.isProcessingSub.asObservable();
   public readonly storageServiceSet = this.storageServiceSetSub.asObservable();
+  public readonly globalErrorCalculated = this.globalErrorSub.asObservable();
 
   public get isInitialized(): boolean { return this.pIsInitialized; }
 
@@ -82,6 +82,24 @@ export class NeuralNetworkService {
     this.storageService = sampleStorageService;
     this.storageService.pull();
     this.storageServiceSetSub.next(this.storageService);
+    this.calcGlobalError();
+  }
+
+  public calcGlobalError() {
+    // calculate the global error over all E = 1/2 * SUM((ti - oi)^2)
+
+    this.storageService.samples.subscribe((samples: Sample[]) => {
+      let error = 0;
+      samples.forEach((sample) => {
+        this.neuralNetwork.reset();
+        this.neuralNetwork.output(sample.input, sample.output);
+        error += this.neuralNetwork.sampleError;
+      });
+
+      error /= samples.length;
+
+      this.globalErrorSub.next(error);
+    });
   }
 
   public initialize(config: NeuralNetworkConfig) {
@@ -101,10 +119,7 @@ export class NeuralNetworkService {
       this.neuralNetwork.initTraining(config);
       const initResult = { learnRate: config.learnRate };
       this.initTrainingSub.next(initResult);
-      this.storageService.samples.subscribe((samples) => {
-        this.neuralNetwork.reset();
-        this.neuralNetwork.propagateSampleStep()
-      });
+
     } catch (err) {
       this.initTrainingSub.error(err);
     }
@@ -173,13 +188,9 @@ export class NeuralNetworkService {
       case PropagationDirection.FINISHED:
         this.storageService.sampleProcessed(this.processingSample.id);
         this.processingSample = null;
-
-        const learnRate = this.neuralNetwork.currentTrainingConfig.learnRate;
-        this.globalError += (learnRate) * this.neuralNetwork.sampleDerivativeSum;
-
+        this.calcGlobalError();
         this.neuralNetwork.reset();
-        this.samplePropagationEndSub.next({ currentSampleError: this.neuralNetwork.sampleError,
-                                            globalError: this.globalError});
+        this.samplePropagationEndSub.next();
     }
   }
 }

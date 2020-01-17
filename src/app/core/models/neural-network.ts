@@ -18,7 +18,7 @@ export interface NeuralNetwork {
   setProcessingSample(inputList: number[], targetList: number[]);
   setOutputProcessingSample(inputList: number[]);
   train(inputList: number[], targetList: number[]);
-  calcOutput(inputList: number[]);
+  output(inputList: number[], targetList: number[]);
   propagateSampleStep(): Observable<PropagationStepResult>;
   reset();
 }

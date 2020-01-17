@@ -14,8 +14,7 @@ import { TrainingSampleStorageService } from 'src/app/core/services/sample-stora
 })
 export class ProgressBoardComponent extends ViewBaseComponent implements OnInit, OnDestroy {
 
-  constructor(protected neuralNetworkService: NeuralNetworkService,
-              protected storageService: TrainingSampleStorageService) { super(); }
+
 
   public errorChartData: ChartDataSets[] = [
     { data: [], label: 'Error' }
@@ -58,7 +57,7 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
     { // red
       // backgroundColor: '#5CF0FD',
       borderColor: 'red',
-      pointBackgroundColor: 'rgba(148,159,177,1)',
+      pointBackgroundColor: 'red',
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
       pointHoverBorderColor: 'rgba(148,159,177,0.8)'
@@ -67,21 +66,27 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
   public errorChartLegend = true;
   public errorChartType = 'line';
   public errorChartPlugins = [pluginAnnotations];
+  public globalError = 0;
+  public sampleCount = 0;
+  public processedSamplesCount: Observable<number>;
 
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
+  constructor(protected neuralNetworkService: NeuralNetworkService,
+              protected storageService: TrainingSampleStorageService) { super(); }
 
   ngOnInit() {
-    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.samplePropagationEnd.subscribe((result) => {
-      const outputErrorMatrix = result.matrices.errorMatrices[result.matrices.errorMatrices.length - 1];
-      const squareMatrix = math.square(outputErrorMatrix);
-      const sumSquareError = math.sum(squareMatrix);
-      this.errorChartData[0].data.push(sumSquareError);
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.globalErrorCalculated.subscribe((globalError) => {
+      this.errorChartData[0].data[this.errorChartData[0].data.length] = globalError;
+      this.globalError = globalError;
     });
 
     this.subscriptions[this.subscriptions.length] = this.storageService.sampleCount.subscribe((sampleCount) => {
-      this.errorChartLabels = Array.from({length: sampleCount}, (x, i) => (i + 1).toString());
+      this.errorChartLabels = Array.from({length: sampleCount + 1}, (x, i) => (i).toString());
+      this.sampleCount = sampleCount;
     });
+
+    this.processedSamplesCount = this.storageService.processedSampleCount;
   }
 
   public chartClicked({ event, active }: { event: MouseEvent, active: {}[] }): void {

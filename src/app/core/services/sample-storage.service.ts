@@ -13,6 +13,7 @@ export abstract class SampleStorageService {
   protected pNextUnprocessedSamples = new BehaviorSubject<Sample[]>([]);
   protected pSamples = new BehaviorSubject<Sample[]>([]);
   protected pSampleCount = new BehaviorSubject<number>(0);
+  protected pProcessedSampleCount = new BehaviorSubject<number>(0);
   protected pHasSamples = new BehaviorSubject<boolean>(false);
   public token: NeuralNetworkPhase;
   public nextSamplesCount = 3;
@@ -23,6 +24,10 @@ export abstract class SampleStorageService {
 
   public get sampleCount() {
     return this.pSampleCount.asObservable();
+  }
+
+  public get processedSampleCount() {
+    return this.pProcessedSampleCount.asObservable();
   }
 
   public get hasSamples() {
@@ -106,6 +111,8 @@ export abstract class SampleStorageService {
     this.processedSampleIdStore.push(id);
 
     this.pNextUnprocessedSamples.next(this.getUnprocessedSamples(3));
+
+    this.pProcessedSampleCount.next(this.processedSampleIdStore.length);
   }
 
   private getUnprocessedSamples(takeCount: number) {

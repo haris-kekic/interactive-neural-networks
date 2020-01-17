@@ -16,8 +16,8 @@
   <div class="table-progress">
     <table class="table table-sm">
       <tr><td colspan="2">Epoch</td><td>1</td></tr>
-      <tr><td colspan="2">Samples (completed/total)</td><td>1/100</td></tr>
-      <tr><td>Error</td><td>Formula</td><td>30</td></tr>
+      <tr><td colspan="2">Samples (completed/total)</td><td>{{ processedSamplesCount | async }}/{{sampleCount }}</td></tr>
+      <tr><td>Error</td><td>Formula</td><td>{{globalError | number: '1.5-5'}}</td></tr>
     </table>
   </div>
 
