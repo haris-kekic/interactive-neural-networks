@@ -6,6 +6,8 @@ import { NeuralNetworkService } from 'src/app/core/services/neural-network.servi
 import { math } from 'src/app/core/utils/math-extension';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { TrainingSampleStorageService } from 'src/app/core/services/sample-storage.service';
+import { Observable } from 'rxjs';
+import { NeuralNetworkConfig } from 'src/app/core/models/artifacts';
 
 @Component({
   selector: 'nn-progress-board',
@@ -14,10 +16,10 @@ import { TrainingSampleStorageService } from 'src/app/core/services/sample-stora
 })
 export class ProgressBoardComponent extends ViewBaseComponent implements OnInit, OnDestroy {
 
-
+  errorFormula: string;
 
   public errorChartData: ChartDataSets[] = [
-    { data: [], label: 'Error' }
+    { data: [], label: 'Global Loss Function' }
   ];
   public errorChartLabels: Label[] = [];
   public errorChartOptions: (ChartOptions & { annotation: any }) = {
@@ -76,6 +78,11 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
               protected storageService: TrainingSampleStorageService) { super(); }
 
   ngOnInit() {
+
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.initialization.subscribe((config) => {
+       this.errorFormula = config.errorFormula;
+    });
+
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.globalErrorCalculated.subscribe((globalError) => {
       this.errorChartData[0].data[this.errorChartData[0].data.length] = globalError;
       this.globalError = globalError;

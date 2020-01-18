@@ -50,6 +50,7 @@ export interface NeuralNetworkConfig {
   layers: NeuralNetworkLayer[];
   inputLabels: string[];
   outputLabels: string[];
+  errorFormula?: string;
 }
 
 export interface NeuralNetworkTrainingConfig {

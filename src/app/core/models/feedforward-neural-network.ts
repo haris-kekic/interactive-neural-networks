@@ -13,13 +13,14 @@ import { NeuralNetworkConfig,
         ActivationFunctionList
 } from './artifacts';
 
-const defaultNetworkConfig: NeuralNetworkConfig = {
+export const defaultNetworkConfig: NeuralNetworkConfig = {
   weightDistribution: WeightDistributionList[0],
   layers: [{ neuronCount: 4, activation: ActivationFunctionList[0] },
   { neuronCount: 3, activation: ActivationFunctionList[2] },
   { neuronCount: 2, activation: ActivationFunctionList[1] }],
   inputLabels: ['Label 1', 'Label 2', 'Label 3', 'Label 4'],
-  outputLabels: ['Label 1', 'Label 2']
+  outputLabels: ['Label 1', 'Label 2'],
+  errorFormula: '{1 \\over M} \\sum_{s=1}^M \\sum_{i=1}^N (\\overline{o}_i^s - o_i^s)^2'
 };
 
 export class FeedForwardNeuralNetwork implements NeuralNetwork {

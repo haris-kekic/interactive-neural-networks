@@ -23,4 +23,6 @@ export class ConfigIntroComponent implements OnInit {
     }
   }
 
+
+
 }
