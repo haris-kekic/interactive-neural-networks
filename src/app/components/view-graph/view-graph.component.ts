@@ -75,7 +75,11 @@ export class ViewGraphComponent extends ViewBaseComponent implements OnInit, OnC
 
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.initialization.subscribe((result) => {
       this.matrices = result.matrices;
-      this.neuralGraph = this.graphManager.createGraph(result.layerNeurons, this.matrices.weightMatrices);
+      this.neuralGraph = this.graphManager.createGraph(result.layerNeurons,
+                                                        result.activationFormulas,
+                                                        result.inputLabels,
+                                                        result.outputLabels,
+                                                        this.matrices.weightMatrices);
     },
     (err) => console.error(err));
 

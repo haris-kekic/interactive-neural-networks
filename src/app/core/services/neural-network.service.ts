@@ -105,7 +105,10 @@ export class NeuralNetworkService {
   public initialize(config: NeuralNetworkConfig) {
     try {
       this.neuralNetwork.init(config);
-      const initResult = { layerNeurons: [...this.neuralNetwork.currentNetworkConfig.layers.map(l => l.neuronCount)],
+      const initResult = {  inputLabels: [... this.neuralNetwork.currentNetworkConfig.inputLabels],
+                            outputLabels: [... this.neuralNetwork.currentNetworkConfig.outputLabels],
+                            activationFormulas: [...this.neuralNetwork.currentNetworkConfig.layers.map(l => l.activation.funcFormula)],
+                            layerNeurons: [...this.neuralNetwork.currentNetworkConfig.layers.map(l => l.neuronCount)],
                             matrices: {...this.neuralNetwork.matrices },
                             errorFormula: this.neuralNetwork.currentNetworkConfig.errorFormula  };
       this.pIsInitialized = true;

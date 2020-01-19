@@ -18,8 +18,20 @@ const configDefaults: NeuralGraphVisualConfig = {
 export class GraphManager {
   constructor(public config?: NeuralGraphVisualConfig) { this.config = {...configDefaults, ...config }; }
 
-  createGraph(layerNeurons: number[], weightMatrices: number[][][]): NeuralGraph {
-    const neuralGraph: NeuralGraph = { layers: [], edges: [], nodes: [], height: 0, width: 0, coordinates: ''};
+  createGraph(layerNeurons: number[],
+              activationFromulas: string[],
+              inputLabels: string[],
+              outputLabels: string[],
+              weightMatrices: number[][][]): NeuralGraph {
+
+    const neuralGraph: NeuralGraph = { layers: [],
+                                        edges: [],
+                                        nodes: [],
+                                        height: 0,
+                                        width: 0,
+                                        coordinates: '',
+                                        inputLabels,
+                                        outputLabels };
 
     const maxNeuronsLayer = math.max(layerNeurons);
     const nodeDistance = this.config.maxNodesDistance;
@@ -33,7 +45,7 @@ export class GraphManager {
     neuralGraph.coordinates = `0 0 ${neuralGraph.width} ${neuralGraph.height}`;
 
     layerNeurons.forEach((neuronCount, layerIndex) => {
-      const graphLayer = { nodes: [], outEdges: [], inEdges: [] } as NeuralGraphLayer;
+      const graphLayer = { nodes: [], outEdges: [], inEdges: [], activationFormula: activationFromulas[layerIndex] } as NeuralGraphLayer;
       neuralGraph.nodes[layerIndex] = [];
 
       const graphLayerX = (layerIndex + 1) * layerDistance + this.config.margins[0];

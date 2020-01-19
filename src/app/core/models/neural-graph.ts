@@ -35,6 +35,7 @@ export interface NeuralGraphLayer {
   outEdges: NeuralGraphEdge[];
   inEdges: NeuralGraphEdge[];
   outEdgeTop: NeuralGraphEdge;
+  activationFormula: string;
 }
 
 export interface NeuralGraph  {
@@ -44,6 +45,8 @@ export interface NeuralGraph  {
   height: number;
   width: number;
   coordinates: string;
+  inputLabels: string[];
+  outputLabels: string[];
 }
 
 
