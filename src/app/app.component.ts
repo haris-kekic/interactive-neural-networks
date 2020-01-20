@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NeuralNetworkService } from './core/services/neural-network.service';
 import { FeedForwardNeuralNetwork } from './core/models/feedforward-neural-network';
-import { TrainingSampleStorageService, ExecutionSampleStorageService } from './core/services/sample-storage.service';
+import { TrainingSampleStorageService, TestSampleStorageService } from './core/services/sample-storage.service';
 import { TranslateService } from '@ngx-translate/core';
 
 

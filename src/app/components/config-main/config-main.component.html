@@ -1,4 +1,4 @@
-<ng-container *ngIf="{ hasSamples: trainingHasSamples | async } as status">
+<ng-container>
   <div class="configurator-main">
     <aw-wizard navBarLayout="large-filled-symbols" class="custom-step">
         <aw-wizard-step stepTitle="Playground" (stepEnter)="onStepEnter($event)">
@@ -29,25 +29,26 @@
           <ng-template awWizardStepSymbol><i class="fas fa-cog"></i></ng-template>
         <div class="step-container">
           <div class="step-content" [@appearance]="curStep == 2 ? 'appear' : ''">
-            <nn-config-neural-network *ngIf="selectedPlayground === playgrounds.CUSTOM" [disableLayers]="status.hasSamples" [save]="saveNeuralNetworkPhase"></nn-config-neural-network>
+            <nn-config-neural-network *ngIf="selectedPlayground === playgrounds.CUSTOM" [disableLayers]="hasSamples" [save]="saveNeuralNetworkPhase"></nn-config-neural-network>
           </div>
             <div class="step-nav">
               <button class="btn btn-highlight btn-rect btn-sm" awPreviousStep><i class="fas fa-caret-left"></i> Previous</button>
-              <button class="btn btn-highlight btn-rect btn-sm" awNextStep (finalize)="saveNeuralNetworkPhase.emit()">Next <i class="fas fa-caret-right"></i></button>
+              <button class="btn btn-highlight btn-rect btn-sm" awNextStep (click)="saveNeuralNetworkPhase.emit()">Next <i class="fas fa-caret-right"></i></button>
             </div>
         </div>
       </aw-wizard-step>
       <aw-wizard-step stepTitle="Dataset/Samples" (stepEnter)="onStepEnter($event)">
         <ng-template awWizardStepSymbol><i class="fas fa-database"></i></ng-template>
         <div class="step-container">
+
           <div class="step-content" [@appearance]="curStep === 3 ? 'appear' : ''">
-            <nn-config-training [save]="saveTrainingPhase" [activated]="curStep === 2"></nn-config-training>
+            <nn-config-dataset [save]="saveDatasetPhase" [activated]="(curStep === 3)" (samplesChanged)="samplesChanged($event)"></nn-config-dataset>
           </div>
           <div class="step-nav">
-              <button class="btn btn-highlight btn-rect btn-sm" (finalize)="saveTrainingPhase.emit()" awPreviousStep><i class="fas fa-caret-left"></i> Previous</button>
-              <button [disabled]="!status.hasSamples" class="btn btn-highlight btn-rect btn-sm" (click)="saveTrainingPhase.emit(); finish()">Build Neural Network <i class="fas fa-caret-right"></i></button>
+              <button class="btn btn-highlight btn-rect btn-sm" awPreviousStep><i class="fas fa-caret-left"></i> Previous</button>
+              <button [disabled]="!hasSamples" class="btn btn-highlight btn-rect btn-sm" (click)="saveDatasetPhase.emit(); finish()">Build Neural Network <i class="fas fa-caret-right"></i></button>
               <!-- <div class="col-4">
-                <button [disabled]="!status.hasSamples" class="btn btn-highlight btn-rect btn-sm" (click)="saveTrainingPhase.emit(); finish()">Create Neural Network</button>
+                <button [disabled]="!hasSamples" class="btn btn-highlight btn-rect btn-sm" (click)="saveTrainingPhase.emit(); finish()">Create Neural Network</button>
               </div> -->
           </div>
         </div>
@@ -60,7 +61,7 @@
           </div>
           <div class="step-nav">
               <button class="btn btn-highlight btn-rect btn-sm mr-5" (finalize)="saveExecutionPhase.emit()" awPreviousStep><i class="fas fa-caret-left"></i> Previous</button>
-              <button [disabled]="!status.hasSamples" class="btn btn-highlight btn-rect btn-sm" (click)="saveExecutionPhase.emit(); finish()">Build Neural Network</button>
+              <button [disabled]="!hasSamples" class="btn btn-highlight btn-rect btn-sm" (click)="saveExecutionPhase.emit(); finish()">Build Neural Network</button>
           </div>
       </div>
       </aw-wizard-step> -->

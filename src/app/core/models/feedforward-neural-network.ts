@@ -3,12 +3,12 @@ import { NeuralNetwork } from './neural-network';
 import { Observable } from 'rxjs';
 import { math } from '../utils/math-extension';
 import { NeuralNetworkConfig,
-        NeuralNetworkTrainingConfig,
+        NeuralNetworkDatasetConfig,
         NeuralNetworkMatrices,
         NeuralNetworkLayer,
         PropagationDirection,
         PropagationStepResult,
-        TrainingConfigDefaults,
+        DatasetConfigDefaults,
         WeightDistributionList,
         ActivationFunctionList
 } from './artifacts';
@@ -33,7 +33,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
   private mLayers: NeuralNetworkLayer[];
 
   private mNetworkConfig: NeuralNetworkConfig;
-  private mTrainingConfig: NeuralNetworkTrainingConfig;
+  private mTrainingConfig: NeuralNetworkDatasetConfig;
   private mSampleError = 0;
   private mSampleDerivativeSum = 0; // used for global error calculation
 
@@ -86,7 +86,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
 
   constructor() {
     this.init(defaultNetworkConfig);
-    this.initTraining(TrainingConfigDefaults);
+    this.initTraining(DatasetConfigDefaults);
   }
 
   public init(networkConfig?: NeuralNetworkConfig) {
@@ -123,8 +123,8 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
     //           ]);
   }
 
-  public initTraining(trainingConfig: NeuralNetworkTrainingConfig) {
-    this.mTrainingConfig = {...TrainingConfigDefaults, ...trainingConfig };
+  public initTraining(trainingConfig: NeuralNetworkDatasetConfig) {
+    this.mTrainingConfig = {...DatasetConfigDefaults, ...trainingConfig };
   }
 
   public distributeWeights() {

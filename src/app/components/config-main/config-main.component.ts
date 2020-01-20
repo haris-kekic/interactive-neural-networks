@@ -3,7 +3,7 @@ import { NeuralNetworkService, Sample } from 'src/app/core/services/neural-netwo
 import { trigger, transition, style, group, animate } from '@angular/animations';
 import { MovingDirection } from 'angular-archwizard';
 import { Router } from '@angular/router';
-import { TrainingSampleStorageService, ExecutionSampleStorageService } from 'src/app/core/services/sample-storage.service';
+import { TrainingSampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { Observable } from 'rxjs';
 import { NeuralNetworkPlayground } from 'src/app/core/models/artifacts';
 
@@ -25,26 +25,24 @@ import { NeuralNetworkPlayground } from 'src/app/core/models/artifacts';
 export class ConfigMainComponent implements OnInit {
 
   constructor(protected neuralNetworkService: NeuralNetworkService,
-              protected trainingStorageService: TrainingSampleStorageService,
-              protected executionStorageService: ExecutionSampleStorageService,
               protected router: Router) { }
 
   curStep = -1;
 
   saveNeuralNetworkPhase: EventEmitter<any> = new EventEmitter();
-  saveTrainingPhase: EventEmitter<any> = new EventEmitter();
-  saveExecutionPhase: EventEmitter<any> = new EventEmitter();
+  saveDatasetPhase: EventEmitter<any> = new EventEmitter();
 
-  trainingHasSamples = new Observable<boolean>();
-  outputHasSamples = new Observable<boolean>();
+  hasSamples: boolean;
 
   selectedPlayground = NeuralNetworkPlayground.CUSTOM;
   playgrounds = NeuralNetworkPlayground;
 
 
   ngOnInit() {
-    this.trainingHasSamples = this.trainingStorageService.hasSamples;
-    this.outputHasSamples = this.executionStorageService.hasSamples;
+  }
+
+  samplesChanged(count: number) {
+    this.hasSamples = count > 0;
   }
 
   onStepEnter(step: MovingDirection) {

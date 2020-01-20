@@ -3,7 +3,7 @@ import { NeuralNetwork } from '../models/neural-network';
 import { Subject, BehaviorSubject, iif, concat, bindCallback} from 'rxjs';
 import { takeUntil, tap, repeat, delay } from 'rxjs/operators';
 import { SampleStorageService } from './sample-storage.service';
-import { NeuralNetworkMatrices, NeuralNetworkConfig, NeuralNetworkTrainingConfig, PropagationStepResult, PropagationDirection } from '../models/artifacts';
+import { NeuralNetworkMatrices, NeuralNetworkConfig, NeuralNetworkDatasetConfig, PropagationStepResult, PropagationDirection } from '../models/artifacts';
 
 export interface InitResult {
   layerNeurons: number[];
@@ -119,7 +119,7 @@ export class NeuralNetworkService {
     }
   }
 
-  public initializeTraining(config: NeuralNetworkTrainingConfig) {
+  public initializeTraining(config: NeuralNetworkDatasetConfig) {
     try {
       this.neuralNetwork.initTraining(config);
       const initResult = { learnRate: config.learnRate };

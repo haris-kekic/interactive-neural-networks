@@ -3,7 +3,7 @@ import {
   Sample,
   NeuralNetworkService
 } from 'src/app/core/services/neural-network.service';
-import { ExecutionSampleStorageService } from 'src/app/core/services/sample-storage.service';
+import { TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { Observable, Subject, timer } from 'rxjs';
 import { ParsingService } from 'src/app/core/services/parsing.service';
 import { ViewBaseComponent } from '../view-base/view-base.component';

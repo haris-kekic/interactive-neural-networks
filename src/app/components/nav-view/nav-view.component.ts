@@ -45,16 +45,22 @@ export class NavViewComponent implements OnInit {
 
   setMode(phase: NeuralNetworkPhase) {
     const storageService = this.storageSelectorService.getService(phase);
-    const component = this.phaseComponentSelectorService.getComponent(phase);
+    this.mode = phase;
+    this.neuralNetworkService.setStorage(storageService);
 
-    const initParams = { options: { component, proceedCondition: storageService.hasSamples } } ;
-    const modalRef = this.modalService.show(PhaseModalComponent, { class: 'default-modal', backdrop: 'static', initialState: initParams});
-    modalRef.content.proceed.subscribe(() => {
-      this.mode = phase;
-      this.neuralNetworkService.setStorage(storageService);
+    /* In the initial version a popup with all the corresponding samples, either test or execution would open */
 
-      this.modeChange.emit(this.mode);
-    });
+    // const component = this.phaseComponentSelectorService.getComponent(phase);
+
+    // const initParams = { options: { component, proceedCondition: storageService.hasSamples } } ;
+    // const modalRef =
+    // this.modalService.show(PhaseModalComponent, { class: 'default-modal', backdrop: 'static', initialState: initParams});
+    // modalRef.content.proceed.subscribe(() => {
+    //   this.mode = phase;
+    //   this.neuralNetworkService.setStorage(storageService);
+
+    //   this.modeChange.emit(this.mode);
+    // });
   }
 
   async backToConfig() {

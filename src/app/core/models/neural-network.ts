@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { NeuralNetworkMatrices, NeuralNetworkConfig, NeuralNetworkTrainingConfig, PropagationStepResult } from './artifacts';
+import { NeuralNetworkMatrices, NeuralNetworkConfig, NeuralNetworkDatasetConfig, PropagationStepResult } from './artifacts';
 
 export interface NeuralNetwork {
   matrices: NeuralNetworkMatrices;
@@ -10,10 +10,10 @@ export interface NeuralNetwork {
   sampleError: number;
   sampleDerivativeSum: number;
   currentNetworkConfig: NeuralNetworkConfig;
-  currentTrainingConfig: NeuralNetworkTrainingConfig;
+  currentTrainingConfig: NeuralNetworkDatasetConfig;
 
   init(networkConfig: NeuralNetworkConfig);
-  initTraining(trainingConfig: NeuralNetworkTrainingConfig);
+  initTraining(trainingConfig: NeuralNetworkDatasetConfig);
   distributeWeights();
   setProcessingSample(inputList: number[], targetList: number[]);
   setOutputProcessingSample(inputList: number[]);

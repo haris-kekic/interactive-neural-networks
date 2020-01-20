@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { NeuralNetworkPlayground } from 'src/app/core/models/artifacts';
-import { TrainingSampleStorageService, ExecutionSampleStorageService } from 'src/app/core/services/sample-storage.service';
+import { TrainingSampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -15,7 +15,7 @@ export class ConfigPlaygroundComponent implements OnInit {
   playground = NeuralNetworkPlayground;
 
   constructor(protected trainingStorageService: TrainingSampleStorageService,
-              protected testStorageService: ExecutionSampleStorageService,
+              protected testStorageService: TestSampleStorageService,
               protected translate: TranslateService) {
     // reset everything if set
     this.trainingStorageService.clear();

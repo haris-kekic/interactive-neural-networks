@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Input } from '@angular/core';
 import { Sample, ProcessingMode } from './neural-network.service';
 import { Observable, from, EMPTY, ArgumentOutOfRangeError, EmptyError, BehaviorSubject } from 'rxjs';
 import { last, map, concatMap, take, elementAt, takeWhile, tap, count, catchError, defaultIfEmpty, first, filter } from 'rxjs/operators';
@@ -72,6 +72,13 @@ export abstract class SampleStorageService {
     this.notifyObservers();
   }
 
+  public addSamples(samples: Sample[]) {
+    const workingSamples = samples.map(s => {
+                                  return { id: UUID.UUID(), input: [... s.input], output: [... s.output] } as Sample; });
+    this.workingSampleStore = [... workingSamples];
+    this.notifyObservers();
+  }
+
   public shuffleSamples() {
     for (let i = this.workingSampleStore.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -138,7 +145,7 @@ export class TrainingSampleStorageService extends SampleStorageService {
 @Injectable({
   providedIn: 'root'
 })
-export class ExecutionSampleStorageService extends SampleStorageService {
+export class TestSampleStorageService extends SampleStorageService {
   token = NeuralNetworkPhase.TEST;
 }
 
@@ -148,7 +155,7 @@ export class ExecutionSampleStorageService extends SampleStorageService {
 export class StorageSelectorService {
   protected storageServices: SampleStorageService[] = [];
   constructor(trainingStorageService: TrainingSampleStorageService,
-              executionStorageService: ExecutionSampleStorageService) {
+              executionStorageService: TestSampleStorageService) {
                 this.storageServices.push(trainingStorageService);
                 this.storageServices.push(executionStorageService);
               }

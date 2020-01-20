@@ -53,9 +53,9 @@ export interface NeuralNetworkConfig {
   errorFormula?: string;
 }
 
-export interface NeuralNetworkTrainingConfig {
+export interface NeuralNetworkDatasetConfig {
   learnRate: number;
-  trainDataPortion: number;
+  trainTestDataRatio: number;
 }
 
 export interface NeuralNetworkMatrices {
@@ -78,7 +78,7 @@ export const ActivationFunctionList: Activation[] = [
   { id: 5, name: 'Leaky ReLU', func: math.leaky_relu, derivativeFunc: math.dLeaky_relu, funcFormula: 'f(x) = \\begin{cases} \\alpha x & \\text{for } x < 0 \\\\ x & \\text{for } x \\ge 0 \\ \\end{cases}' }
 ];
 
-export const TrainingConfigDefaults: NeuralNetworkTrainingConfig = {
+export const DatasetConfigDefaults: NeuralNetworkDatasetConfig = {
   learnRate: 0.5,
-  trainDataPortion: 80
+  trainTestDataRatio: 80
 };

@@ -1,18 +1,19 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy, AfterViewInit, OnChanges, SimpleChange, SimpleChanges } from '@angular/core';
 import { Sample, NeuralNetworkService } from 'src/app/core/services/neural-network.service';
-import { SampleStorageService, TrainingSampleStorageService } from 'src/app/core/services/sample-storage.service';
-import { Observable, Subject, pipe } from 'rxjs';
+import { SampleStorageService, TrainingSampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
+import { Observable, Subject, pipe, concat } from 'rxjs';
 import { ParsingService } from 'src/app/core/services/parsing.service';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { ToastrService } from 'ngx-toastr';
 import { Converter } from 'src/app/core/utils/converter';
-import { debounceTime, distinctUntilChanged, elementAt, tap, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, elementAt, tap, takeUntil, concatAll } from 'rxjs/operators';
 import { NgxUiLoaderService } from 'ngx-ui-loader';
-import { NeuralNetworkTrainingConfig, TrainingConfigDefaults } from 'src/app/core/models/artifacts';
+import { NeuralNetworkDatasetConfig, DatasetConfigDefaults } from 'src/app/core/models/artifacts';
+import { math } from 'src/app/core/utils/math-extension';
 
 
 @Component({
-  selector: 'nn-config-training',
+  selector: 'nn-config-dataset',
   templateUrl: './config-dataset.component.html',
   styleUrls: ['./config-dataset.component.scss']
 })
@@ -21,10 +22,12 @@ export class ConfigDatasetComponent extends ViewBaseComponent implements OnInit,
   // we dont use input binding in config because this component needs to be used later in a modal
   // and there we dont have access to the previous configuration step in wizard
   layerNeurons: number[] = [];
-  samples: Observable<Sample[]>;
-  sampleCount: Observable<number>;
 
-  config: NeuralNetworkTrainingConfig = TrainingConfigDefaults;
+  samples: Sample[] = [];
+
+  @Output() samplesChanged = new EventEmitter<number>();
+
+  config: NeuralNetworkDatasetConfig = DatasetConfigDefaults;
 
   sliderOptions = { floor: 0, ceil: 100, tickStep: 10, minLimit: 10, maxLimit: 90, showTicks: true, step: 10, animate: false };
 
@@ -35,7 +38,8 @@ export class ConfigDatasetComponent extends ViewBaseComponent implements OnInit,
   @Input() private activated: boolean;
   @Input() private save!: EventEmitter<any>;
 
-  constructor(protected sampleStorageService: TrainingSampleStorageService,
+  constructor(protected trainStorageService: TrainingSampleStorageService,
+              protected testStorageService: TestSampleStorageService,
               protected neuralNetworkService: NeuralNetworkService,
               protected parsingService: ParsingService,
               protected toastService: ToastrService,
@@ -44,9 +48,25 @@ export class ConfigDatasetComponent extends ViewBaseComponent implements OnInit,
               }
 
   ngOnInit() {
-    this.samples = this.sampleStorageService.samples;
-    this.sampleCount = this.sampleStorageService.sampleCount;
-    this.sampleStorageService.pull();
+    this.subscriptions[this.subscriptions.length] = concat(this.trainStorageService.samples, this.testStorageService.samples)
+                                                      .subscribe((samples) => {
+                                                        //this.samples = samples;
+                                                      });
+
+    this.subscriptions[this.subscriptions.length] = concat(this.trainStorageService.sampleCount, this.testStorageService.sampleCount)
+                                                    .subscribe((sampleCount) => {
+
+                                                    });
+
+    // this.trainSamples = this.trainStorageService.samples;
+    // this.trainSampleCount = this.trainStorageService.sampleCount;
+    // this.trainStorageService.pull();
+
+    // this.testSamples = this.testStorageService.samples;
+    // this.testSampleCount = this.testStorageService.sampleCount;
+    // this.testStorageService.pull();
+
+
 
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.initialization.subscribe((initConfig) => {
       if (initConfig === null) {
@@ -57,27 +77,42 @@ export class ConfigDatasetComponent extends ViewBaseComponent implements OnInit,
 
     if (this.save) {
       this.save.subscribe(() => {
+        const trainSampleCount = math.floor((this.config.trainTestDataRatio / 100) * this.samples.length);
+
+        this.trainStorageService.clear();
+        this.testStorageService.clear();
+
+        this.trainStorageService.addSamples(this.samples.slice(0, trainSampleCount));
+        this.testStorageService.addSamples(this.samples.slice(trainSampleCount));
+
+        // Mix and shuffle the samples
+        this.trainStorageService.shuffleSamples();
+        this.testStorageService.shuffleSamples();
+
+        // push to persistance
+        this.trainStorageService.push();
+        this.testStorageService.push();
+
         this.neuralNetworkService.initializeTraining(this.config);
-        this.sampleStorageService.push();
       });
     }
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.activated) {
-      this.sampleStorageService.pull();
-    }
   }
 
   addSample() {
     const inputLayerNeurons = this.layerNeurons[0];
     const outputLayerNeurons = this.layerNeurons[this.layerNeurons.length - 1];
     const sample = { input: Array<number>(inputLayerNeurons).fill(0.1), output: Array<number>(outputLayerNeurons).fill(0.1) };
-    this.sampleStorageService.addSample(sample);
+    this.samples.push(sample);
+
+    this.samplesChanged.emit(this.samples.length);
   }
 
   clearSamples() {
-    this.sampleStorageService.clear();
+    this.samples.splice(0, this.samples.length);
+    this.samplesChanged.emit(this.samples.length);
   }
 
   uploadSamples(fileEvent: any) {
@@ -114,13 +149,13 @@ export class ConfigDatasetComponent extends ViewBaseComponent implements OnInit,
             const sample = { input: inputData.map(id => Converter.floatOrZero(id) ),
                              output: outputData.map(od => Converter.floatOrZero(od)) };
             if (this.isScaled(sample)) {
-              this.sampleStorageService.addSample(sample);
+              this.samples.push(sample);
             }
           }
 
           this.loaderService.stopLoader(this.fileLoaderId);
 
-          this.sampleStorageService.shuffleSamples();
+          this.samplesChanged.emit(this.samples.length);
         });
 
         fileEvent.target.value = '';
@@ -144,6 +179,6 @@ export class ConfigDatasetComponent extends ViewBaseComponent implements OnInit,
   }
 
   getTrainTestRatio() {
-    return this.config.trainDataPortion + '/' + (this.sliderOptions.ceil - this.config.trainDataPortion);
+    return this.config.trainTestDataRatio + '/' + (this.sliderOptions.ceil - this.config.trainTestDataRatio);
   }
 }

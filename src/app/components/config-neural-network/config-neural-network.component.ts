@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, EventEmitter, ViewChild, ElementRef, ViewContainerRef } from '@angular/core';
 import { NeuralNetworkService } from 'src/app/core/services/neural-network.service';
 import { ToastrService } from 'ngx-toastr';
-import { TrainingSampleStorageService, ExecutionSampleStorageService } from 'src/app/core/services/sample-storage.service';
+import { TrainingSampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { WeightDistribution,
         NeuralNetworkConfig,
