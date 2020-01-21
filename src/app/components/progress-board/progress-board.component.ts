@@ -5,9 +5,9 @@ import * as pluginAnnotations from 'chartjs-plugin-annotation';
 import { NeuralNetworkService } from 'src/app/core/services/neural-network.service';
 import { math } from 'src/app/core/utils/math-extension';
 import { ViewBaseComponent } from '../view-base/view-base.component';
-import { TrainingSampleStorageService } from 'src/app/core/services/sample-storage.service';
+import { TrainingSampleStorageService, SampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { Observable } from 'rxjs';
-import { NeuralNetworkConfig } from 'src/app/core/models/artifacts';
+import { NeuralNetworkConfig, NeuralNetworkPhase } from 'src/app/core/models/artifacts';
 
 @Component({
   selector: 'nn-progress-board',
@@ -19,8 +19,10 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
   errorFormula: string;
 
   public errorChartData: ChartDataSets[] = [
-    { data: [], label: 'Global Loss Function' }
+    { data: [], label: 'Loss (Training)' },
+    { data: [], label: 'Loss (Test)' },
   ];
+
   public errorChartLabels: Label[] = [];
   public errorChartOptions: (ChartOptions & { annotation: any }) = {
     responsive: true,
@@ -69,13 +71,18 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
   public errorChartType = 'line';
   public errorChartPlugins = [pluginAnnotations];
   public globalError = 0;
-  public sampleCount = 0;
+  public sampleCount: Observable<number>;
   public processedSamplesCount: Observable<number>;
+  public currentPhase: NeuralNetworkPhase;
+  neuralNetworkPhase = NeuralNetworkPhase;
 
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
   constructor(protected neuralNetworkService: NeuralNetworkService,
-              protected storageService: TrainingSampleStorageService) { super(); }
+              protected trainStorageService: TrainingSampleStorageService,
+              protected testStorageService: TestSampleStorageService) {
+                super();
+              }
 
   ngOnInit() {
 
@@ -83,17 +90,25 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
        this.errorFormula = config.errorFormula;
     });
 
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.storageServiceSet.subscribe((storageService) => {
+      this.currentPhase = storageService.token;
+      this.sampleCount = storageService.sampleCount;
+      this.processedSamplesCount = storageService.processedSampleCount;
+    });
+
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.globalErrorCalculated.subscribe((globalError) => {
-      this.errorChartData[0].data[this.errorChartData[0].data.length] = globalError;
+      if (this.currentPhase === this.neuralNetworkPhase.TRAINING) {
+        this.errorChartData[0].data[this.errorChartData[0].data.length] = globalError;
+      } else {
+        this.errorChartData[1].data[this.errorChartData[1].data.length] = globalError;
+      }
+
       this.globalError = globalError;
     });
 
-    this.subscriptions[this.subscriptions.length] = this.storageService.sampleCount.subscribe((sampleCount) => {
+    this.subscriptions[this.subscriptions.length] = this.trainStorageService.sampleCount.subscribe((sampleCount) => {
       this.errorChartLabels = Array.from({length: sampleCount + 1}, (x, i) => (i).toString());
-      this.sampleCount = sampleCount;
     });
-
-    this.processedSamplesCount = this.storageService.processedSampleCount;
   }
 
   public chartClicked({ event, active }: { event: MouseEvent, active: {}[] }): void {
