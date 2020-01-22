@@ -79,10 +79,10 @@ export class NeuralNetworkService {
   }
 
   public setStorage(sampleStorageService: SampleStorageService) {
+    this.processingSample = null;
     this.storageService = sampleStorageService;
     this.storageService.pull();
     this.storageServiceSetSub.next(this.storageService);
-    this.calcGlobalError();
   }
 
   public calcGlobalError() {

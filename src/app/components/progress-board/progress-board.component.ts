@@ -6,8 +6,9 @@ import { NeuralNetworkService } from 'src/app/core/services/neural-network.servi
 import { math } from 'src/app/core/utils/math-extension';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { TrainingSampleStorageService, SampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
-import { Observable } from 'rxjs';
+import { Observable, zip } from 'rxjs';
 import { NeuralNetworkConfig, NeuralNetworkPhase } from 'src/app/core/models/artifacts';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'nn-progress-board',
@@ -106,9 +107,14 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
       this.globalError = globalError;
     });
 
-    this.subscriptions[this.subscriptions.length] = this.trainStorageService.sampleCount.subscribe((sampleCount) => {
-      this.errorChartLabels = Array.from({length: sampleCount + 1}, (x, i) => (i).toString());
-    });
+    this.subscriptions[this.subscriptions.length] =
+                                      zip(this.trainStorageService.sampleCount, this.testStorageService.sampleCount)
+                                      .pipe(map(([trainCount, testCount]) => ({ trainCount, testCount})))
+                                            .subscribe((counts) => {
+                                                // we take the greater count for the X-axis labels
+                                                const labelCount = math.max(counts.trainCount, counts.testCount);
+                                                this.errorChartLabels = Array.from({length: labelCount + 1}, (x, i) => (i).toString());
+                                            });
   }
 
   public chartClicked({ event, active }: { event: MouseEvent, active: {}[] }): void {
