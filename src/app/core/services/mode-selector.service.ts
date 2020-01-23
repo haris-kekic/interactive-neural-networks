@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { ConfigDatasetComponent } from 'src/app/components/config-dataset/config-dataset.component';
 import { ConfigExecutionComponent } from 'src/app/components/config-execution/config-execution.component';
-import { NeuralNetworkPhase } from '../models/artifacts';
+import { NeuralNetworkMode } from '../models/artifacts';
 
 @Injectable({
   providedIn: 'root'
 })
-export class PhaseComponentSelectorService {
+export class ModeComponentSelectorService {
   constructor() { }
 
-  getComponent(phase: NeuralNetworkPhase) {
+  getComponent(mode: NeuralNetworkMode) {
     let component: any;
-    switch (phase) {
-      case NeuralNetworkPhase.TRAINING:
+    switch (mode) {
+      case NeuralNetworkMode.TRAINING:
         component = ConfigDatasetComponent;
         break;
-      case NeuralNetworkPhase.TEST:
+      case NeuralNetworkMode.TEST:
         component = ConfigExecutionComponent;
         break;
     }

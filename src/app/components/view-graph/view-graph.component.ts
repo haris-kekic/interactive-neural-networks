@@ -17,7 +17,7 @@ import { NeuralNetworkService, Sample } from 'src/app/core/services/neural-netwo
 import { PopoverDirective } from 'ngx-bootstrap';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { SampleStorageService } from 'src/app/core/services/sample-storage.service';
-import { NeuralNetworkMatrices, NeuralNetworkPhase } from 'src/app/core/models/artifacts';
+import { NeuralNetworkMatrices, NeuralNetworkMode } from 'src/app/core/models/artifacts';
 
 
 @Component({
@@ -38,7 +38,7 @@ export class ViewGraphComponent extends ViewBaseComponent implements OnInit, OnC
 
   matrices: NeuralNetworkMatrices;
 
-  mode: NeuralNetworkPhase;
+  mode: NeuralNetworkMode;
 
   neuralGraph: NeuralGraph;
 

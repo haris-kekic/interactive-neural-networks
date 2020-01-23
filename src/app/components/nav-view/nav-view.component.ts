@@ -6,8 +6,8 @@ import { ConfigDatasetComponent } from '../config-dataset/config-dataset.compone
 import { PhaseModalComponent, PhaseModalOptions } from '../phase-modal/phase-modal.component';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { DialogService } from 'src/app/core/services/dialog.service';
-import { PhaseComponentSelectorService } from 'src/app/core/services/phase-selector.service';
-import { NeuralNetworkView, NeuralNetworkPhase } from 'src/app/core/models/artifacts';
+import { ModeComponentSelectorService } from 'src/app/core/services/mode-selector.service';
+import { NeuralNetworkView, NeuralNetworkMode } from 'src/app/core/models/artifacts';
 import { DialogResult } from '../dialog-modal/dialog-modal.component';
 import { Router } from '@angular/router';
 
@@ -21,21 +21,21 @@ export class NavViewComponent implements OnInit {
   @Output() viewChange = new EventEmitter<NeuralNetworkView>();
   @Input() view: NeuralNetworkView;
 
-  @Output() modeChange = new EventEmitter<NeuralNetworkPhase>();
-  @Input() mode: NeuralNetworkPhase;
+  @Output() modeChange = new EventEmitter<NeuralNetworkMode>();
+  @Input() mode: NeuralNetworkMode;
 
   neuralNetworkView = NeuralNetworkView;
-  neuralNetworkMode = NeuralNetworkPhase;
+  neuralNetworkMode = NeuralNetworkMode;
 
   constructor(protected neuralNetworkService: NeuralNetworkService,
               protected storageSelectorService: StorageSelectorService,
-              protected phaseComponentSelectorService: PhaseComponentSelectorService,
+              protected modeComponentSelectorService: ModeComponentSelectorService,
               protected dialogService: DialogService,
               protected modalService: BsModalService,
               protected router: Router) { }
 
   ngOnInit() {
-     this.neuralNetworkService.setStorage(this.storageSelectorService.getService(this.mode));
+     this.neuralNetworkService.setStorage(this.storageSelectorService.getService(this.mode), this.mode);
   }
 
   setView(view: NeuralNetworkView) {
@@ -43,12 +43,11 @@ export class NavViewComponent implements OnInit {
     this.viewChange.emit(this.view);
   }
 
-  setMode(phase: NeuralNetworkPhase) {
-    const storageService = this.storageSelectorService.getService(phase);
-    this.mode = phase;
-    this.neuralNetworkService.setStorage(storageService);
+  setMode(mode: NeuralNetworkMode) {
+    this.mode = mode;
+    this.neuralNetworkService.setStorage(this.storageSelectorService.getService(mode), this.mode);
 
-    /* In the initial version a popup with all the corresponding samples, either test or execution would open */
+    /* In the initial version a popup with all the corresponding samples for either test or execution would open */
 
     // const component = this.phaseComponentSelectorService.getComponent(phase);
 

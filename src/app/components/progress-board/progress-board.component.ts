@@ -7,7 +7,7 @@ import { math } from 'src/app/core/utils/math-extension';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { TrainingSampleStorageService, SampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { Observable, zip } from 'rxjs';
-import { NeuralNetworkConfig, NeuralNetworkPhase } from 'src/app/core/models/artifacts';
+import { NeuralNetworkConfig, NeuralNetworkMode } from 'src/app/core/models/artifacts';
 import { map } from 'rxjs/operators';
 
 @Component({
@@ -71,11 +71,13 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
   public errorChartLegend = true;
   public errorChartType = 'line';
   public errorChartPlugins = [pluginAnnotations];
-  public globalError = 0;
-  public sampleCount: Observable<number>;
-  public processedSamplesCount: Observable<number>;
-  public currentPhase: NeuralNetworkPhase;
-  neuralNetworkPhase = NeuralNetworkPhase;
+  public trainError = 0;
+  public testError = 0;
+  public trainSampleCount = 0;
+  public testSampleCount = 0;
+  public processedTrainSamplesCount: Observable<number>;
+  public processedTestSamplesCount: Observable<number>;
+  public currentMode: NeuralNetworkMode;
 
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
@@ -86,35 +88,45 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
               }
 
   ngOnInit() {
-
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.initialization.subscribe((config) => {
        this.errorFormula = config.errorFormula;
     });
 
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.storageServiceSet.subscribe((storageService) => {
-      this.currentPhase = storageService.token;
-      this.sampleCount = storageService.sampleCount;
-      this.processedSamplesCount = storageService.processedSampleCount;
+      this.currentMode = storageService.token;
     });
 
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.globalErrorCalculated.subscribe((globalError) => {
-      if (this.currentPhase === this.neuralNetworkPhase.TRAINING) {
+      if (this.currentMode === NeuralNetworkMode.TRAINING) {
         this.errorChartData[0].data[this.errorChartData[0].data.length] = globalError;
+        this.trainError = globalError;
       } else {
         this.errorChartData[1].data[this.errorChartData[1].data.length] = globalError;
+        this.testError = globalError;
       }
-
-      this.globalError = globalError;
     });
 
     this.subscriptions[this.subscriptions.length] =
                                       zip(this.trainStorageService.sampleCount, this.testStorageService.sampleCount)
                                       .pipe(map(([trainCount, testCount]) => ({ trainCount, testCount})))
                                             .subscribe((counts) => {
-                                                // we take the greater count for the X-axis labels
-                                                const labelCount = math.max(counts.trainCount, counts.testCount);
+                                                this.trainSampleCount = counts.trainCount;
+                                                this.testSampleCount = counts.testCount;
+                                                 // we take the greater count for the X-axis labels
+                                                const labelCount = math.max(this.trainSampleCount, this.testSampleCount);
                                                 this.errorChartLabels = Array.from({length: labelCount + 1}, (x, i) => (i).toString());
                                             });
+
+    this.processedTrainSamplesCount = this.trainStorageService.processedSampleCount;
+    this.processedTestSamplesCount = this.testStorageService.processedSampleCount;
+
+    // Quickly switch to the test storage and calculate initial loss on test set
+    this.neuralNetworkService.setStorage(this.testStorageService, NeuralNetworkMode.TEST);
+    this.neuralNetworkService.calcGlobalError();
+
+    // Quickly switch to back the training storage and calculate initial loss on training set
+    this.neuralNetworkService.setStorage(this.trainStorageService, NeuralNetworkMode.TRAINING);
+    this.neuralNetworkService.calcGlobalError();
   }
 
   public chartClicked({ event, active }: { event: MouseEvent, active: {}[] }): void {

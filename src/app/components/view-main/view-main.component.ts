@@ -3,7 +3,7 @@ import { NeuralNetworkService } from 'src/app/core/services/neural-network.servi
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { MessageBoardService } from 'src/app/core/services/message-board.service';
 import { MessageToken } from 'src/app/core/models/message';
-import { NeuralNetworkView, NeuralNetworkPhase } from 'src/app/core/models/artifacts';
+import { NeuralNetworkView, NeuralNetworkMode } from 'src/app/core/models/artifacts';
 
 @Component({
   selector: 'nn-view-main',
@@ -15,7 +15,7 @@ export class ViewMainComponent extends ViewBaseComponent implements OnInit, OnDe
   neuralNetworkView = NeuralNetworkView;
 
   curView = NeuralNetworkView.GRAPH;
-  curMode = NeuralNetworkPhase.TRAINING;
+  curMode = NeuralNetworkMode.TRAINING;
 
   constructor(protected neuralNetworkService: NeuralNetworkService,
               protected messageService: MessageBoardService) {

@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
-import { NeuralNetworkService, PropagationOptions, ProcessingMode } from 'src/app/core/services/neural-network.service';
+import { NeuralNetworkService, PropagationOptions } from 'src/app/core/services/neural-network.service';
 import { Subject, merge } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { DialogService } from 'src/app/core/services/dialog.service';

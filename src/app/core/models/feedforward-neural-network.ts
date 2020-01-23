@@ -1,6 +1,6 @@
 
 import { NeuralNetwork } from './neural-network';
-import { Observable } from 'rxjs';
+import { Observable, Observer } from 'rxjs';
 import { math } from '../utils/math-extension';
 import { NeuralNetworkConfig,
         NeuralNetworkDatasetConfig,
@@ -33,7 +33,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
   private mLayers: NeuralNetworkLayer[];
 
   private mNetworkConfig: NeuralNetworkConfig;
-  private mTrainingConfig: NeuralNetworkDatasetConfig;
+  private mProcessConfig: NeuralNetworkDatasetConfig;
   private mSampleError = 0;
   private mSampleDerivativeSum = 0; // used for global error calculation
 
@@ -81,12 +81,12 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
   }
 
   public get currentTrainingConfig() {
-    return {...this.mTrainingConfig };
+    return {...this.mProcessConfig };
   }
 
   constructor() {
     this.init(defaultNetworkConfig);
-    this.initTraining(DatasetConfigDefaults);
+    this.initPropagation(DatasetConfigDefaults);
   }
 
   public init(networkConfig?: NeuralNetworkConfig) {
@@ -123,8 +123,8 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
     //           ]);
   }
 
-  public initTraining(trainingConfig: NeuralNetworkDatasetConfig) {
-    this.mTrainingConfig = {...DatasetConfigDefaults, ...trainingConfig };
+  public initPropagation(trainingConfig: NeuralNetworkDatasetConfig) {
+    this.mProcessConfig = {...DatasetConfigDefaults, ...trainingConfig };
   }
 
   public distributeWeights() {
@@ -203,7 +203,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
       this.mLayerIndex--;
     }
 
-    this.calcErrors();
+    this.calcSampleErrors();
   }
 
   public output(inputList: number[], targetList: number[]) {
@@ -216,10 +216,10 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
     const curOutputMatrix = this.mMatrices.outputMatrices[this.mLayerIndex - 1];
     const errorMatrix = math.subtract(this.mTargetMatrix, curOutputMatrix);
     this.mMatrices.errorMatrices[this.mMatrices.errorMatrices.length] = errorMatrix;
-    this.calcErrors();
+    this.calcSampleErrors();
   }
 
-  public propagateSampleStep(): Observable<PropagationStepResult> {
+  public propagateSampleStep(backProp: boolean = true): Observable<PropagationStepResult> {
     return new Observable<PropagationStepResult>((observer) => {
       if (this.mMatrices.weightMatrices.length === 0) {
         throw Error('No weights defined!');
@@ -241,10 +241,15 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
         return;
       }
 
-
-
       this.normalizeLayerIndex();
-          // Backpropagation
+
+      if (!backProp) {
+        this.calcOutputError();
+        this.finishProp(observer, processingResult);
+        return;
+      }
+
+      // Backpropagation
       if (this.canPropagateBackward) {
         this.propagateBackward();
         processingResult.direction = PropagationDirection.BACKPROPAGATION;
@@ -255,16 +260,25 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
         return;
       }
 
-      this.calcErrors();
-
-      processingResult.direction = PropagationDirection.FINISHED;
-      observer.next(processingResult);
-      observer.complete();
+      this.finishProp(observer, processingResult);
       return;
     });
   }
 
-  private calcErrors() {
+  private finishProp(observer: Observer<PropagationStepResult>, processingResult: PropagationStepResult) {
+    this.calcSampleErrors();
+    processingResult.direction = PropagationDirection.FINISHED;
+    observer.next(processingResult);
+    observer.complete();
+  }
+
+  private calcOutputError() {
+    const curOutputMatrix = this.mMatrices.outputMatrices[this.mLayerIndex];
+    const errorMatrix = math.subtract(this.mTargetMatrix, curOutputMatrix);
+    this.mMatrices.errorMatrices[this.mLayerIndex] = errorMatrix;
+  }
+
+  private calcSampleErrors() {
     this.mSampleError = math.sum(math.square(this.mMatrices.errorMatrices[this.errorMatrices.length - 1]));
     // Skip the derivates of the first input layer
     this.mMatrices.derivativeMatrices.slice(1).forEach((matrix) => {
@@ -337,7 +351,7 @@ export class FeedForwardNeuralNetwork implements NeuralNetwork {
     const deltaWeightMatrix = math.multiply(productErrorDerivativeMatrix, math.transpose(prevOutputMatrix));
 
     // apply learn rate to delta
-    const weightChangeMatrixLearnRate = math.dotMultiply(this.mTrainingConfig.learnRate, deltaWeightMatrix);
+    const weightChangeMatrixLearnRate = math.dotMultiply(this.mProcessConfig.learnRate, deltaWeightMatrix);
 
     // update the weights in weight matrix with the calculated change (learnRate * delta)
     this.mMatrices.weightMatrices[this.mLayerIndex - 1] =

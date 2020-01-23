@@ -6,6 +6,10 @@
       <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
         <path d="M0,0 L0,6 L9,3 z" fill="#5CF0FD" />
       </marker>
+      <filter x="0" y="0" width="1" height="1" id="solid">
+        <feFlood flood-color="#fff"/>
+        <feComposite in="SourceGraphic" operator="xor"/>
+      </filter>
     </defs>
 
     <g *ngFor="let edge of neuralGraph.edges; index as edgeIndex">
@@ -98,11 +102,11 @@
         </g>
       </g>
 
-      <text *ngIf="layer === 0" [attr.x]="(neuralGraph.layers[layer].x  - 80)" text-anchor="end" y="60" fill="#fff" font-size="0.9em">
+      <text *ngIf="layer === 0" filter="url(#solid)" [attr.x]="(neuralGraph.layers[layer].x  - 80)" text-anchor="end" y="60" fill="#fff" font-size="0.9em">
         Input Values
       </text>
 
-      <text *ngIf="layer === (neuralGraph.nodes.length - 1)" [attr.x]="(neuralGraph.layers[layer].x + 50)" text-anchor="start" y="60" fill="#fff" font-size="0.9em">
+      <text *ngIf="layer === (neuralGraph.nodes.length - 1)" filter="url(#solid)" [attr.x]="(neuralGraph.layers[layer].x + 50)" text-anchor="start" y="60" fill="#fff" font-size="0.9em">
         Target Values
       </text>
 

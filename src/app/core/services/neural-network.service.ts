@@ -3,7 +3,7 @@ import { NeuralNetwork } from '../models/neural-network';
 import { Subject, BehaviorSubject, iif, concat, bindCallback} from 'rxjs';
 import { takeUntil, tap, repeat, delay } from 'rxjs/operators';
 import { SampleStorageService } from './sample-storage.service';
-import { NeuralNetworkMatrices, NeuralNetworkConfig, NeuralNetworkDatasetConfig, PropagationStepResult, PropagationDirection } from '../models/artifacts';
+import { NeuralNetworkMatrices, NeuralNetworkConfig, NeuralNetworkDatasetConfig, PropagationStepResult, PropagationDirection, NeuralNetworkMode } from '../models/artifacts';
 
 export interface InitResult {
   layerNeurons: number[];
@@ -32,12 +32,6 @@ export interface Sample {
   output: number[];
 }
 
-
-export enum ProcessingMode {
-  TRAINING,
-  OUTPUT_CALCULATION
-}
-
 @Injectable({ providedIn: 'root' })
 export class NeuralNetworkService {
 
@@ -53,11 +47,12 @@ export class NeuralNetworkService {
   private samplePropagationEndSub = new Subject();
   private isProcessingSub = new BehaviorSubject<boolean>(false);
   private storageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
-  private globalErrorSub = new BehaviorSubject<number>(0);
+  private globalErrorSub = new Subject<number>();
 
   private neuralNetwork: NeuralNetwork;
   private storageService: SampleStorageService;
   private processingSample: Sample;
+  private processingMode: NeuralNetworkMode;
 
   public readonly initialization = this.initSub.asObservable();
   public readonly initializationTraining = this.initTrainingSub.asObservable();
@@ -78,7 +73,8 @@ export class NeuralNetworkService {
     this.neuralNetwork = neuralNetwork;
   }
 
-  public setStorage(sampleStorageService: SampleStorageService) {
+  public setStorage(sampleStorageService: SampleStorageService, mode: NeuralNetworkMode) {
+    this.processingMode = mode;
     this.processingSample = null;
     this.storageService = sampleStorageService;
     this.storageService.pull();
@@ -88,7 +84,7 @@ export class NeuralNetworkService {
   public calcGlobalError() {
     // calculate the global error over all E = 1/2 * SUM((ti - oi)^2)
 
-    this.storageService.samples.subscribe((samples: Sample[]) => {
+    const subs = this.storageService.samples.subscribe((samples: Sample[]) => {
       let error = 0;
       samples.forEach((sample) => {
         this.neuralNetwork.reset();
@@ -100,6 +96,9 @@ export class NeuralNetworkService {
 
       this.globalErrorSub.next(error);
     });
+
+    subs.unsubscribe();
+
   }
 
   public initialize(config: NeuralNetworkConfig) {
@@ -119,9 +118,9 @@ export class NeuralNetworkService {
     }
   }
 
-  public initializeTraining(config: NeuralNetworkDatasetConfig) {
+  public initializePropagation(config: NeuralNetworkDatasetConfig) {
     try {
-      this.neuralNetwork.initTraining(config);
+      this.neuralNetwork.initPropagation(config);
       const initResult = { learnRate: config.learnRate };
       this.initTrainingSub.next(initResult);
 
@@ -162,7 +161,7 @@ export class NeuralNetworkService {
     const propagate = iif(
       () => this.processingSample != null,
       this.neuralNetwork
-          .propagateSampleStep()
+          .propagateSampleStep(this.processingMode === NeuralNetworkMode.TRAINING)
           .pipe(tap(propResult => this.processPropResult(propResult))),
       stopPropagationCallback.call(this)
     ); // bind "this" and make it accessable in the callback method

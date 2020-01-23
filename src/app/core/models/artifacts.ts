@@ -5,7 +5,7 @@ export const NeuralNetworkPlayground = {
   CUSTOM: 'custom'
 };
 
-export enum NeuralNetworkPhase {
+export enum NeuralNetworkMode {
   TRAINING,
   TEST
 }

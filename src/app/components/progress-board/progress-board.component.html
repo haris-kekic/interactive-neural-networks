@@ -1,6 +1,6 @@
 
 <div style="display: block;">
-  <canvas baseChart width="400" height="250"
+  <canvas baseChart width="400" height="200"
               style="background-color: #5CF0FD;"
               [datasets]="errorChartData"
               [labels]="errorChartLabels"
@@ -17,9 +17,13 @@
 
   <div class="table-progress">
     <table class="table table-sm">
+      <tr><td class="header" colspan="3">Training Phase</td></tr>
       <tr><td colspan="2">Epoch</td><td class="text-center font-weight-bold">1</td></tr>
-      <tr><td colspan="2">Samples (M) - (completed/total)</td><td class="text-center font-weight-bold">{{ processedSamplesCount | async }}/{{sampleCount | async }}</td></tr>
-      <tr><td>Global Loss</td><td [mathjax]=[errorFormula]>\( {{ '{}' }} \)</td><td class="font-weight-bold">{{globalError | number: '1.5-5'}}</td></tr>
+      <tr><td colspan="2">Samples (M) - (completed/total)</td><td class="text-center font-weight-bold">{{ processedTrainSamplesCount | async }}/{{ trainSampleCount }}</td></tr>
+      <tr><td>Loss</td><td [mathjax]=[errorFormula]>\( {{ '{}' }} \)</td><td class="font-weight-bold text-center">{{trainError | number: '1.5-5'}}</td></tr>
+      <tr><td class="header" colspan="3">Test Phase</td></tr>
+      <tr><td colspan="2">Samples (M) - (completed/total)</td><td class="text-center font-weight-bold">{{ processedTestSamplesCount | async }}/{{ testSampleCount }}</td></tr>
+      <tr><td>Loss</td><td [mathjax]=[errorFormula]>\( {{ '{}' }} \)</td><td class="font-weight-bold text-center">{{testError | number: '1.5-5'}}</td></tr>
     </table>
   </div>
 

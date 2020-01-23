@@ -154,11 +154,17 @@ circle {
 
 .table-progress {
   background-color: #5CF0FD;
-
+  font-size: 0.7em;
   table {
     tr {
       td {
         border-top: 1px solid #305796;
+      }
+
+      td.header {
+        background: #305796;
+        color: #5CF0FD;
+        font-weight: 500;
       }
     }
   }

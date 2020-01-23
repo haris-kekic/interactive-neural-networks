@@ -93,7 +93,7 @@ export class ConfigDatasetComponent extends ViewBaseComponent implements OnInit,
         this.trainStorageService.push();
         this.testStorageService.push();
 
-        this.neuralNetworkService.initializeTraining(this.config);
+        this.neuralNetworkService.initializePropagation(this.config);
       });
     }
   }

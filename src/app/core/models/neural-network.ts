@@ -13,12 +13,12 @@ export interface NeuralNetwork {
   currentTrainingConfig: NeuralNetworkDatasetConfig;
 
   init(networkConfig: NeuralNetworkConfig);
-  initTraining(trainingConfig: NeuralNetworkDatasetConfig);
+  initPropagation(trainingConfig: NeuralNetworkDatasetConfig);
   distributeWeights();
   setProcessingSample(inputList: number[], targetList: number[]);
   setOutputProcessingSample(inputList: number[]);
   train(inputList: number[], targetList: number[]);
   output(inputList: number[], targetList: number[]);
-  propagateSampleStep(): Observable<PropagationStepResult>;
+  propagateSampleStep(backProp: boolean): Observable<PropagationStepResult>;
   reset();
 }
