@@ -20,8 +20,8 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
   errorFormula: string;
 
   public errorChartData: ChartDataSets[] = [
-    { data: [], label: 'Loss (Training)' },
-    { data: [], label: 'Loss (Test)' },
+    { data: [], label: 'Global Loss (Training)' },
+    { data: [], label: 'Sample Loss (Test)' },
   ];
 
   public errorChartLabels: Label[] = [];

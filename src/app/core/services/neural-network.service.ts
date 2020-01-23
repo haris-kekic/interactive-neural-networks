@@ -3,7 +3,12 @@ import { NeuralNetwork } from '../models/neural-network';
 import { Subject, BehaviorSubject, iif, concat, bindCallback} from 'rxjs';
 import { takeUntil, tap, repeat, delay } from 'rxjs/operators';
 import { SampleStorageService } from './sample-storage.service';
-import { NeuralNetworkMatrices, NeuralNetworkConfig, NeuralNetworkDatasetConfig, PropagationStepResult, PropagationDirection, NeuralNetworkMode } from '../models/artifacts';
+import { NeuralNetworkMatrices,
+          NeuralNetworkConfig,
+          NeuralNetworkDatasetConfig,
+          PropagationStepResult,
+          PropagationDirection,
+          NeuralNetworkMode } from '../models/artifacts';
 
 export interface InitResult {
   layerNeurons: number[];
@@ -13,6 +18,8 @@ export interface InitResult {
 export interface PropagationOptions {
   isContinous: boolean;
   delay: number;
+  skipPropagationStepNotification: boolean; // should the observers be notified when steping activating individual layers
+  skipSampleFinishNotification: boolean; // should the observers be notified when finishing sample
 }
 
 export interface PropagationResult {
@@ -35,16 +42,19 @@ export interface Sample {
 @Injectable({ providedIn: 'root' })
 export class NeuralNetworkService {
 
-  private propagationOptions: PropagationOptions = { delay: 0, isContinous: false };
+  private propagationOptions: PropagationOptions = { delay: 0,
+                                                     isContinous: false,
+                                                    skipPropagationStepNotification: false,
+                                                    skipSampleFinishNotification: false };
   private pIsInitialized = false;
 
   private initSub = new BehaviorSubject(null);
   private initTrainingSub = new BehaviorSubject(null);
   private forwardPropagationSub = new Subject<PropagationResult>();
   private backPropagationSub = new Subject<PropagationResult>();
-  private propagationStopSub = new Subject();
+  private propagationStopSub = new Subject<PropagationResult>();
   private samplePropagationStartSub = new Subject();
-  private samplePropagationEndSub = new Subject();
+  private samplePropagationEndSub = new Subject<PropagationResult>();
   private isProcessingSub = new BehaviorSubject<boolean>(false);
   private storageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
   private globalErrorSub = new Subject<number>();
@@ -161,7 +171,7 @@ export class NeuralNetworkService {
     const propagate = iif(
       () => this.processingSample != null,
       this.neuralNetwork
-          .propagateSampleStep(this.processingMode === NeuralNetworkMode.TRAINING)
+          .propagateSampleStep(this.processingMode === NeuralNetworkMode.TRAINING) // do backprop also!
           .pipe(tap(propResult => this.processPropResult(propResult))),
       stopPropagationCallback.call(this)
     ); // bind "this" and make it accessable in the callback method
@@ -180,11 +190,17 @@ export class NeuralNetworkService {
   private processPropResult(propResult: PropagationStepResult) {
     switch (propResult.direction) {
       case PropagationDirection.FORWARDPROPAGATION:
+        if (this.propagationOptions.skipPropagationStepNotification) {
+          break;
+        }
         this.forwardPropagationSub.next({ layer: propResult.layer,
                                           matrices: Object.assign({}, this.neuralNetwork.matrices),
                                           options: Object.assign({}, this.propagationOptions) });
         break;
       case PropagationDirection.BACKPROPAGATION:
+        if (this.propagationOptions.skipPropagationStepNotification) {
+          break;
+        }
         this.backPropagationSub.next({ layer: propResult.layer,
                                         matrices: Object.assign({}, this.neuralNetwork.matrices),
                                         options: Object.assign({}, this.propagationOptions) });
@@ -193,8 +209,16 @@ export class NeuralNetworkService {
         this.storageService.sampleProcessed(this.processingSample.id);
         this.processingSample = null;
         this.calcGlobalError();
+
+        if (this.propagationOptions.skipSampleFinishNotification) {
+          this.neuralNetwork.reset();
+          break;
+        }
+        this.samplePropagationEndSub.next({ layer: propResult.layer,
+                                            matrices: Object.assign({}, this.neuralNetwork.matrices),
+                                            options: Object.assign({}, this.propagationOptions) });
+
         this.neuralNetwork.reset();
-        this.samplePropagationEndSub.next();
     }
   }
 }

@@ -153,10 +153,16 @@ export class GraphManager {
     neuralGraph.layers[layer].hasErrorMatrix = true;
   }
 
-  updateEdgeWeights(neuralGraph: NeuralGraph, weightMatrix: number[][][], layer: number) {
+  updateAllEdgeWeights(neuralGraph: NeuralGraph, weightMatrices: number[][][]) {
+    for (let layer = weightMatrices.length; layer > 0; layer--) {
+      this.updateEdgeWeights(neuralGraph, weightMatrices, layer);
+    }
+  }
+
+  updateEdgeWeights(neuralGraph: NeuralGraph, weightMatrices: number[][][], layer: number) {
     const sourceLayer = layer - 1;
     const targetLayer = layer;
-    const matrix = weightMatrix[sourceLayer];
+    const matrix = weightMatrices[sourceLayer];
     for (let rowIndex = 0; rowIndex < matrix.length; rowIndex++) {
         for (let colIndex = 0; colIndex < matrix[rowIndex].length; colIndex++) {
           // edge id constist of: (SOURCE LAYER INDEX)(INPUT NEURON INDEX)-(TARGET LAYER INDEX)(OUTPUT NEURON INDEX)

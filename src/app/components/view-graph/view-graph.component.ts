@@ -18,6 +18,7 @@ import { PopoverDirective } from 'ngx-bootstrap';
 import { ViewBaseComponent } from '../view-base/view-base.component';
 import { SampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { NeuralNetworkMatrices, NeuralNetworkMode } from 'src/app/core/models/artifacts';
+import { timingSafeEqual } from 'crypto';
 
 
 @Component({
@@ -100,6 +101,13 @@ export class ViewGraphComponent extends ViewBaseComponent implements OnInit, OnC
       this.matrices.errorMatrices = result.matrices.errorMatrices;
       this.backPropagationActivateLayer(result.layer);
     });
+
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.samplePropagationEnd.subscribe((result) => {
+      this.matrices.weightMatrices = result.matrices.weightMatrices;
+      this.matrices.errorMatrices = result.matrices.errorMatrices;
+      this.graphManager.updateAllEdgeWeights(this.neuralGraph, this.matrices.weightMatrices);
+    });
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {

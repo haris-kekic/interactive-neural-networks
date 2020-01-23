@@ -1,9 +1,10 @@
-import { Component, OnInit, Output, EventEmitter, HostListener } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, HostListener, OnDestroy } from '@angular/core';
 import { NeuralNetworkService, PropagationOptions } from 'src/app/core/services/neural-network.service';
 import { Subject, merge } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { DialogService } from 'src/app/core/services/dialog.service';
 import { DialogResult } from '../dialog-modal/dialog-modal.component';
+import { ViewBaseComponent } from '../view-base/view-base.component';
 
 
 @Component({
@@ -11,7 +12,7 @@ import { DialogResult } from '../dialog-modal/dialog-modal.component';
   templateUrl: './nav-panel.component.html',
   styleUrls: ['./nav-panel.component.scss']
 })
-export class NavPanelComponent implements OnInit {
+export class NavPanelComponent extends ViewBaseComponent implements OnInit, OnDestroy {
   public delay = 1;
   readonly msDisableDelay = 1500;
 
@@ -19,12 +20,13 @@ export class NavPanelComponent implements OnInit {
 
   disablePlay: boolean;
   playing: boolean;
+  singleSample: boolean;
 
   constructor(protected neuralNetworkService: NeuralNetworkService,
-              protected dialogService: DialogService) { }
+              protected dialogService: DialogService) { super(); }
 
   ngOnInit() {
-    this.neuralNetworkService.propagationStop
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.propagationStop
                 .pipe(delay(this.msDisableDelay))
                 .subscribe(() => {
                   this.disablePlay = false;
@@ -37,23 +39,32 @@ export class NavPanelComponent implements OnInit {
   }
 
   performPlay() {
-    this.propagationOptions = { delay: this.delayToMilliseconds, isContinous: true };
+    this.propagationOptions = { delay: this.delayToMilliseconds,
+                                isContinous: true,
+                                skipPropagationStepNotification: false,
+                                skipSampleFinishNotification: false };
     this.neuralNetworkService.propagate(this.propagationOptions);
     this.disablePlay = true;
     this.playing = true;
   }
 
+  // Process one sample at once
   performForward() {
-
-  }
-
-
-  performFastForward() {
-
+    this.propagationOptions = { delay: 0,
+                                isContinous: true,
+                                skipPropagationStepNotification: true,
+                                skipSampleFinishNotification: false };
+    this.neuralNetworkService.propagate(this.propagationOptions);
+    this.disablePlay = true;
+    this.playing = false;
+    this.singleSample = true;
   }
 
   perfromStep() {
-    this.propagationOptions = { delay: 0, isContinous: false };
+    this.propagationOptions = { delay: 0,
+                                isContinous: false,
+                                skipPropagationStepNotification: false,
+                                skipSampleFinishNotification: false };
     this.neuralNetworkService.propagate(this.propagationOptions);
     this.disablePlay = true;
     this.playing = true;
@@ -67,6 +78,10 @@ export class NavPanelComponent implements OnInit {
     }
 
     this.propagationOptions.delay = this.delayToMilliseconds;
+  }
+
+  ngOnDestroy() {
+    super.ngOnDestroy();
   }
 
   @HostListener('window:blur', ['$event'])
