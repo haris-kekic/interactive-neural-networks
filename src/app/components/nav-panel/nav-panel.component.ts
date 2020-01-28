@@ -32,6 +32,7 @@ export class NavPanelComponent extends ViewBaseComponent implements OnInit, OnDe
                   this.disablePlay = false;
                   this.playing = false;
                 } );
+
   }
 
   performStop() {

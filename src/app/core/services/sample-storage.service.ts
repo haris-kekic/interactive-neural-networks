@@ -38,6 +38,10 @@ export abstract class SampleStorageService {
     return this.pNextUnprocessedSamples.asObservable();
   }
 
+  public get storageCompleted() {
+    return this.workingSampleStore.length === this.processedSampleIdStore.length;
+  }
+
   constructor() { }
 
   public push() {
