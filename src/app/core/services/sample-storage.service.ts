@@ -1,6 +1,6 @@
 import { Injectable, Input } from '@angular/core';
 import { Sample } from './neural-network.service';
-import { Observable, from, EMPTY, ArgumentOutOfRangeError, EmptyError, BehaviorSubject } from 'rxjs';
+import { Observable, from, EMPTY, ArgumentOutOfRangeError, EmptyError, BehaviorSubject, Subject } from 'rxjs';
 import { last, map, concatMap, take, elementAt, takeWhile, tap, count, catchError, defaultIfEmpty, first, filter } from 'rxjs/operators';
 import { UUID } from 'angular2-uuid';
 import { NeuralNetworkMode } from '../models/artifacts';
@@ -15,6 +15,7 @@ export abstract class SampleStorageService {
   protected pSampleCount = new BehaviorSubject<number>(0);
   protected pProcessedSampleCount = new BehaviorSubject<number>(0);
   protected pHasSamples = new BehaviorSubject<boolean>(false);
+  protected pProcessingReset = new Subject();
   public token: NeuralNetworkMode;
   public nextSamplesCount = 3;
 
@@ -40,6 +41,10 @@ export abstract class SampleStorageService {
 
   public get storageCompleted() {
     return this.workingSampleStore.length === this.processedSampleIdStore.length;
+  }
+
+  public get processingReset() {
+    return this.pProcessingReset.asObservable();
   }
 
   constructor() { }
@@ -97,6 +102,10 @@ export abstract class SampleStorageService {
 
   public resetProcessing() {
     this.processedSampleIdStore.splice(0, this.processedSampleIdStore.length);
+    this.pProcessingReset.next();
+    this.pNextUnprocessedSamples.next(this.workingSampleStore
+      .filter(sample => !this.processedSampleIdStore.some((sampleId) => sample.id === sampleId))
+      .slice(0, 3));
   }
 
   public aquireNextSample(): Observable<Sample> {

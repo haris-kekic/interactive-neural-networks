@@ -59,7 +59,6 @@ export class NeuralNetworkService {
   private isProcessingSub = new BehaviorSubject<boolean>(false);
   private storageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
   private globalErrorSub = new Subject<number>();
-  private epochSub = new BehaviorSubject<number>(1);
 
   private neuralNetwork: NeuralNetwork;
   private storageService: SampleStorageService;
@@ -77,7 +76,6 @@ export class NeuralNetworkService {
   public readonly isProcessing = this.isProcessingSub.asObservable();
   public readonly storageServiceSet = this.storageServiceSetSub.asObservable();
   public readonly globalErrorCalculated = this.globalErrorSub.asObservable();
-  public readonly epoch = this.epochSub.asObservable();
 
   public get isInitialized(): boolean { return this.pIsInitialized; }
 
@@ -223,6 +221,10 @@ export class NeuralNetworkService {
                                             options: Object.assign({}, this.propagationOptions) });
 
         this.sampleSetCompletedSub.next(this.storageService.storageCompleted);
+
+        if (this.storageService.storageCompleted) {
+          this.storageService.resetProcessing();
+        }
 
         this.neuralNetwork.reset();
     }
