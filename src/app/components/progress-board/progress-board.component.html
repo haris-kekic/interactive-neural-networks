@@ -18,7 +18,7 @@
   <div class="table-progress">
     <table class="table table-sm">
       <tr><td class="header" colspan="3">Training Phase</td></tr>
-      <tr><td colspan="2">Epoch</td><td class="text-center font-weight-bold">1</td></tr>
+      <tr><td colspan="2">Epoch</td><td class="text-center font-weight-bold">{{this.epoch}}</td></tr>
       <tr><td colspan="2">Samples (M) - (completed/total)</td><td class="text-center font-weight-bold">{{ processedTrainSamplesCount | async }}/{{ trainSampleCount }}</td></tr>
       <tr><td>Global Loss</td><td [mathjax]=[errorFormula]>\( {{ '{}' }} \)</td><td class="font-weight-bold text-center">{{trainError | number: '1.5-5'}}</td></tr>
       <tr><td class="header" colspan="3">Test Phase</td></tr>

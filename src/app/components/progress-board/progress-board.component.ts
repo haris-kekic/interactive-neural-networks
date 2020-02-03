@@ -8,7 +8,7 @@ import { ViewBaseComponent } from '../view-base/view-base.component';
 import { TrainingSampleStorageService, SampleStorageService, TestSampleStorageService } from 'src/app/core/services/sample-storage.service';
 import { Observable, zip } from 'rxjs';
 import { NeuralNetworkConfig, NeuralNetworkMode } from 'src/app/core/models/artifacts';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'nn-progress-board',
@@ -78,6 +78,7 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
   public processedTrainSamplesCount: Observable<number>;
   public processedTestSamplesCount: Observable<number>;
   public currentMode: NeuralNetworkMode;
+  public epoch = 1;
 
   @ViewChild(BaseChartDirective, { static: true }) chart: BaseChartDirective;
 
@@ -91,6 +92,8 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.initialization.subscribe((config) => {
        this.errorFormula = config.errorFormula;
     });
+
+
 
     this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.storageServiceSet.subscribe((storageService) => {
       this.currentMode = storageService.token;
@@ -116,6 +119,14 @@ export class ProgressBoardComponent extends ViewBaseComponent implements OnInit,
                                                 const labelCount = math.max(this.trainSampleCount, this.testSampleCount);
                                                 this.errorChartLabels = Array.from({length: labelCount + 1}, (x, i) => (i).toString());
                                             });
+
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.sampleSetCompleted
+                                                                              .pipe(filter(s => s === true)).subscribe(() => {
+        if (this.currentMode === NeuralNetworkMode.TRAINING) {
+                this.errorChartData[0].data.splice(0, this.errorChartData[0].data.length);
+                this.epoch++;
+         }
+     });
 
     this.processedTrainSamplesCount = this.trainStorageService.processedSampleCount;
     this.processedTestSamplesCount = this.testStorageService.processedSampleCount;

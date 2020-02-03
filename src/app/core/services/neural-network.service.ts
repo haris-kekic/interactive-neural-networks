@@ -93,6 +93,11 @@ export class NeuralNetworkService {
     this.storageServiceSetSub.next(this.storageService);
   }
 
+  public resetStorage() {
+    this.storageService.resetProcessing();
+    this.setStorage(this.storageService, this.processingMode);
+  }
+
   public calcGlobalError() {
     // calculate the global error over all E = 1/2 * SUM((ti - oi)^2)
 
@@ -223,7 +228,7 @@ export class NeuralNetworkService {
         this.sampleSetCompletedSub.next(this.storageService.storageCompleted);
 
         if (this.storageService.storageCompleted) {
-          this.storageService.resetProcessing();
+          this.resetStorage();
         }
 
         this.neuralNetwork.reset();
