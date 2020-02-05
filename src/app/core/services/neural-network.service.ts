@@ -57,13 +57,14 @@ export class NeuralNetworkService {
   private samplePropagationEndSub = new Subject<PropagationResult>();
   private sampleSetCompletedSub = new Subject<boolean>();
   private isProcessingSub = new BehaviorSubject<boolean>(false);
-  private storageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
-  private globalErrorSub = new Subject<number>();
+  private workingStorageServiceSetSub = new BehaviorSubject<SampleStorageService>(null);
+  private globalSetsErrorsSub = new Subject<number[]>();
 
   private neuralNetwork: NeuralNetwork;
   private storageService: SampleStorageService;
   private processingSample: Sample;
   private processingMode: NeuralNetworkMode;
+  private errorCalcSampleSets: Sample[][] = [];
 
   public readonly initialization = this.initSub.asObservable();
   public readonly initializationTraining = this.initTrainingSub.asObservable();
@@ -74,8 +75,8 @@ export class NeuralNetworkService {
   public readonly samplePropagationEnd = this.samplePropagationEndSub.asObservable();
   public readonly sampleSetCompleted = this.sampleSetCompletedSub.asObservable();
   public readonly isProcessing = this.isProcessingSub.asObservable();
-  public readonly storageServiceSet = this.storageServiceSetSub.asObservable();
-  public readonly globalErrorCalculated = this.globalErrorSub.asObservable();
+  public readonly workingStorageServiceSet = this.workingStorageServiceSetSub.asObservable();
+  public readonly globalSetsErrorsCalculated = this.globalSetsErrorsSub.asObservable();
 
   public get isInitialized(): boolean { return this.pIsInitialized; }
 
@@ -85,23 +86,40 @@ export class NeuralNetworkService {
     this.neuralNetwork = neuralNetwork;
   }
 
-  public setStorage(sampleStorageService: SampleStorageService, mode: NeuralNetworkMode) {
+  // set the storage service which will be used for processing
+  public setWorkingStorage(sampleStorageService: SampleStorageService, mode: NeuralNetworkMode) {
     this.processingMode = mode;
     this.processingSample = null;
     this.storageService = sampleStorageService;
     this.storageService.pull();
-    this.storageServiceSetSub.next(this.storageService);
+    this.workingStorageServiceSetSub.next(this.storageService);
   }
 
-  public resetStorage() {
+  public resetWorkingStorage() {
     this.storageService.resetProcessing();
-    this.setStorage(this.storageService, this.processingMode);
+    this.setWorkingStorage(this.storageService, this.processingMode);
   }
 
-  public calcGlobalError() {
-    // calculate the global error over all E = 1/2 * SUM((ti - oi)^2)
+    // Mainly for error calculation
+  public set errorCalculationSampleSets(sampleSet: Sample[][]) {
+      this.errorCalcSampleSets = [... sampleSet.map(s => s.map(sample => {
+                                                              return { id: sample.id,
+                                                                      input: [...sample.input],
+                                                                      output: (sample.output != null ? [...sample.output] : null) };
+                                                                }
+                ))];
+  }
 
-    const subs = this.storageService.samples.subscribe((samples: Sample[]) => {
+  // calculates errors on the sets provided in errorCalcSampleSets
+  // return an array of errors for each set
+  public calcGlobalSetsErrors() {
+    if (this.errorCalcSampleSets.length === 0) {
+      return;
+    }
+
+    const errors: number[] = [];
+
+    this.errorCalcSampleSets.forEach((samples) => {
       let error = 0;
       samples.forEach((sample) => {
         this.neuralNetwork.reset();
@@ -110,12 +128,10 @@ export class NeuralNetworkService {
       });
 
       error /= samples.length;
-
-      this.globalErrorSub.next(error);
+      errors[errors.length] = error;
     });
 
-    subs.unsubscribe();
-
+    this.globalSetsErrorsSub.next(errors);
   }
 
   public initialize(config: NeuralNetworkConfig) {
@@ -215,7 +231,7 @@ export class NeuralNetworkService {
       case PropagationDirection.FINISHED:
         this.storageService.sampleProcessed(this.processingSample.id);
         this.processingSample = null;
-        this.calcGlobalError();
+        this.calcGlobalSetsErrors();
 
         if (this.propagationOptions.skipSampleFinishNotification) {
           this.neuralNetwork.reset();
@@ -228,7 +244,7 @@ export class NeuralNetworkService {
         this.sampleSetCompletedSub.next(this.storageService.storageCompleted);
 
         if (this.storageService.storageCompleted) {
-          this.resetStorage();
+          this.resetWorkingStorage();
         }
 
         this.neuralNetwork.reset();

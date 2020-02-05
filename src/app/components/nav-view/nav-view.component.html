@@ -2,12 +2,14 @@
       <div class="col-2 pr-3 pl-1 separator-right">
           <button [disabled]="neuralNetworkService.isProcessing | async" class="btn btn-highlight btn-block btn-rect btn-sm" title="Custom configuration" (click)="backToConfig()"><i class="fas fa-sliders-h"></i></button>
       </div>
-      <div class="col-2 pr-1 pl-3">
+      <!--
+        In an earlier version, there was an intention to switch between phases. This is why this is commented out.
+        <div class="col-2 pr-1 pl-3">
           <button [disabled]="neuralNetworkService.isProcessing | async" class="btn btn-highlight btn-block btn-rect btn-sm" [class.selected]="mode === neuralNetworkMode.TRAINING" (click)="setMode(neuralNetworkMode.TRAINING)" title="Train"><i class="fas fa-running"></i></button>
       </div>
       <div class="col-2 pr-3 pl-1 separator-right">
           <button [disabled]="neuralNetworkService.isProcessing | async" class="btn btn-highlight btn-block btn-rect btn-sm " [class.selected]="mode === neuralNetworkMode.TEST" (click)="setMode(neuralNetworkMode.TEST)" title="Test"><i class="fas fa-calculator"></i></button>
-      </div>
+      </div> -->
       <div class="col-2 pr-1 pl-3">
         <button class="btn btn-highlight btn-block btn-rect btn-sm" [class.selected]="view === neuralNetworkView.GRAPH" (click)="setView(neuralNetworkView.GRAPH)" title="Graph View"><i class="fas fa-project-diagram"></i></button>
       </div>

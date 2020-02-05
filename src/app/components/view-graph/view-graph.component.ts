@@ -69,7 +69,7 @@ export class ViewGraphComponent extends ViewBaseComponent implements OnInit, OnC
   }
 
   ngOnInit() {
-    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.storageServiceSet.subscribe((result) => {
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.workingStorageServiceSet.subscribe((result) => {
       this.storageService = result;
       this.unprocessedSamples = this.storageService.nextUnprocessedSamples;
     });

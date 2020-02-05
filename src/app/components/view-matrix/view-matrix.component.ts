@@ -27,7 +27,7 @@ export class ViewMatrixComponent extends ViewBaseComponent implements OnInit, On
   }
 
   ngOnInit() {
-    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.storageServiceSet.subscribe((result) => {
+    this.subscriptions[this.subscriptions.length] = this.neuralNetworkService.workingStorageServiceSet.subscribe((result) => {
       this.storageService = result;
       this.unprocessedSamples = this.storageService.nextUnprocessedSamples;
     });

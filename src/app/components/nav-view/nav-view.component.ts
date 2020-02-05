@@ -35,7 +35,7 @@ export class NavViewComponent implements OnInit {
               protected router: Router) { }
 
   ngOnInit() {
-     this.neuralNetworkService.setStorage(this.storageSelectorService.getService(this.mode), this.mode);
+     this.neuralNetworkService.setWorkingStorage(this.storageSelectorService.getService(this.mode), this.mode);
   }
 
   setView(view: NeuralNetworkView) {
@@ -45,7 +45,7 @@ export class NavViewComponent implements OnInit {
 
   setMode(mode: NeuralNetworkMode) {
     this.mode = mode;
-    this.neuralNetworkService.setStorage(this.storageSelectorService.getService(mode), this.mode);
+    this.neuralNetworkService.setWorkingStorage(this.storageSelectorService.getService(mode), this.mode);
 
     /* In the initial version a popup with all the corresponding samples for either test or execution would open */
 
