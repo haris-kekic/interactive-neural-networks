@@ -1,6 +1,6 @@
 <div class="message-item" [ngClass]="{ 'message-item-current': message.isCurrent }" @appearance>
 
-  <ng-container *ngTemplateOutlet="{ 'initialization' : initialization, 'calcoutput' : calcoutput, 'calcoutput_details' : calcoutput_details, 'backpropagation' : backpropagation }[message.token]; context: message.params"></ng-container>
+  <ng-container *ngTemplateOutlet="{ 'initialization' : initialization, 'calcoutput' : calcoutput, 'backpropagation' : backpropagation }[message.token]; context: message.params"></ng-container>
 
 </div>
 

@@ -40,7 +40,7 @@ export class NumberInputComponent implements OnInit {
     this.change.next(this.value);
   }
 
-  onKeyUp() {
+  onKeyUp(event: any) {
     const value = Number(this.inputControl.nativeElement.value);
     if (isNaN(value)) {
       this.value = this.emptyDefault;

@@ -27,12 +27,12 @@ export class NavViewComponent implements OnInit {
   neuralNetworkView = NeuralNetworkView;
   neuralNetworkMode = NeuralNetworkMode;
 
-  constructor(protected neuralNetworkService: NeuralNetworkService,
-              protected storageSelectorService: StorageSelectorService,
-              protected modeComponentSelectorService: ModeComponentSelectorService,
-              protected dialogService: DialogService,
-              protected modalService: BsModalService,
-              protected router: Router) { }
+  constructor(public neuralNetworkService: NeuralNetworkService,
+              public storageSelectorService: StorageSelectorService,
+              public modeComponentSelectorService: ModeComponentSelectorService,
+              public dialogService: DialogService,
+              public modalService: BsModalService,
+              public router: Router) { }
 
   ngOnInit() {
      this.neuralNetworkService.setWorkingStorage(this.storageSelectorService.getService(this.mode), this.mode);
@@ -43,6 +43,8 @@ export class NavViewComponent implements OnInit {
     this.viewChange.emit(this.view);
   }
 
+  // Obsolte: In an earlier version, there was the intention to change between phases
+  // but for now, for the test set, only the error is calculated
   setMode(mode: NeuralNetworkMode) {
     this.mode = mode;
     this.neuralNetworkService.setWorkingStorage(this.storageSelectorService.getService(mode), this.mode);

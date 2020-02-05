@@ -25,8 +25,8 @@ export class PhaseModalComponent implements OnInit, AfterContentInit {
 
   proceed: EventEmitter<any> = new EventEmitter();
 
-  constructor(protected resolver: ComponentFactoryResolver,
-              protected bsModalRef: BsModalRef) {}
+  constructor(public resolver: ComponentFactoryResolver,
+              public bsModalRef: BsModalRef) {}
 
   ngOnInit() {
 

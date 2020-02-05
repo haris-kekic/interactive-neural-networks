@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "simple-neural-network": {
+    "interactive-neural-network": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/simple-neural-network",
+            "outputPath": "dist/interactive-neural-network",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -67,18 +67,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "simple-neural-network:build"
+            "browserTarget": "interactive-neural-network:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "simple-neural-network:build:production"
+              "browserTarget": "interactive-neural-network:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "simple-neural-network:build"
+            "browserTarget": "interactive-neural-network:build"
           }
         },
         "test": {
@@ -115,15 +115,15 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "simple-neural-network:serve"
+            "devServerTarget": "interactive-neural-network:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "simple-neural-network:serve:production"
+              "devServerTarget": "interactive-neural-network:serve:production"
             }
           }
         }
       }
     }},
-  "defaultProject": "simple-neural-network"
+  "defaultProject": "interactive-neural-network"
 }
